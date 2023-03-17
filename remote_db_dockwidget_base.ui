@@ -43,7 +43,14 @@
        </font>
       </property>
       <property name="text">
-       <string>Remote DB</string>
+       <string>Connections:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4">
+     <widget class="QPushButton" name="open_settings_dir_btn">
+      <property name="text">
+       <string>Settings Folder</string>
       </property>
      </widget>
     </item>
@@ -60,7 +67,14 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="4">
+    <item row="0" column="5">
+     <widget class="QPushButton" name="refresh_btn">
+      <property name="text">
+       <string>Refresh</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="6">
      <widget class="QListWidget" name="conn_list_widget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -80,13 +94,6 @@
      </widget>
     </item>
     <item row="0" column="3">
-     <widget class="QPushButton" name="open_settings_dir_btn">
-      <property name="text">
-       <string>Settings Folder</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
      <widget class="QPushButton" name="add_conn_btn">
       <property name="text">
        <string>Add Connection</string>

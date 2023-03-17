@@ -6,45 +6,38 @@ Re-used under GNU GENERAL PUBLIC LICENSE v.2
 
 """
 
-from __future__ import absolute_import
-from os import path
-from qgis.PyQt import uic
-from qgis.PyQt.QtGui import (
-    QImage,
-    QPixmap,
-    QCursor,
-    QFont,
-)
+import os
+
 from qgis.PyQt.QtWidgets import (
-    QApplication,
     QWidget,
-    QDockWidget,
     QHBoxLayout,
     QLabel,
     QToolButton,
     QSizePolicy,
-    QListWidgetItem,
     QGridLayout,
+    QMenu, QAction,
+    QMessageBox,
+    QDialog
 )
 from qgis.PyQt.QtCore import (
-    QThread,
-    pyqtSignal,
     Qt,
-    QTimer,
-    QMutex,
-    QByteArray
+    pyqtSignal
 )
 from qgis.core import (
     QgsMessageLog,
-    QgsGeometry
 )
 
+from .EditConnectionDialog import EditConnectionDialog
 class ConnectionListItem(QWidget):
-    def __init__(self, connection, parent=None):
+    
+    connectionDeleted = pyqtSignal()
+    connectionEdited  = pyqtSignal()
+
+    def __init__(self, connection, connectionManager, parent=None):
         QWidget.__init__(self, parent)
 
         self.connection = connection
-
+        self.connectionManager = connectionManager
 
         # QLayout
         self.layout = QHBoxLayout(self)
@@ -108,6 +101,9 @@ class ConnectionListItem(QWidget):
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
 
 
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.showContextMenu)
+
     def connect(self):
         connection = self.connection
         try:
@@ -156,3 +152,51 @@ class ConnectionListItem(QWidget):
         if status == "error":
             self.status_label.setStyleSheet("color: red; font-size: 30px")
          
+
+    def showContextMenu(self, point):
+        menu = QMenu(self)
+
+        action1 = QAction("Edit connection", self)
+        action1.triggered.connect(self.edit_connection_dialog)
+
+        action2 = QAction("Delete connection", self)
+        action2.triggered.connect(self.delete_connection)
+
+        menu.addAction(action1)
+        menu.addAction(action2)
+
+        menu.exec_(self.mapToGlobal(point))
+
+
+    def delete_connection(self):
+        reply = QMessageBox.question(self, 'Confirm Deletion', 'Are you sure you want to delete the selected object?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+    
+        # If the user clicked 'Yes', call the delObj() function
+        if reply == QMessageBox.Yes:
+            self.connectionManager.remove_connection(self.connection)
+            self.connectionDeleted.emit()
+
+
+    def edit_connection_dialog(self):
+        dialog = EditConnectionDialog(self.connection.parameters)
+        result = dialog.exec_()
+        if result == QDialog.Accepted:
+
+            connection_info = dialog.get_connection_info()
+
+            try:
+                self.connectionManager.edit_connection(connection=self.connection, parameters=connection_info)
+
+                # Repopulate connections list
+                self.connectionEdited.emit()
+                
+            # Duplicate connection Name
+            except ReferenceError as e:
+                notify_user = QMessageBox(self.dockwidget)
+                notify_user.setText(str(e))
+                notify_user.exec_()
+            # Invalid port
+            except ValueError as e:
+                notify_user = QMessageBox(self.dockwidget)
+                notify_user.setText("Ports must be integers in the range: 1001-65535")
+                notify_user.exec_()

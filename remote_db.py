@@ -23,30 +23,29 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QUrl
 from qgis.PyQt.QtGui import QIcon, QDesktopServices
-from qgis.PyQt.QtWidgets import QAction, QDialog, QListWidgetItem
-# Initialize Qt resources from file resources.py
+from qgis.PyQt.QtWidgets import QAction, QDialog, QListWidgetItem, QLabel, QMessageBox
+
+
 from .resources import *
-
-# Import the code for the DockWidget
-from .remote_db_dockwidget import RemoteDBDockWidget
-from .add_connection_dialog import AddConnectionDialog
 import os.path
-
+from .remote_db_dockwidget import RemoteDBDockWidget
 from .core.ConnectionManager import ConnectionManager
+from .core.ConnectionListItem import ConnectionListItem
+from .core.AddConnectionDialog import AddConnectionDialog
+
 from .install_packages.check_dependencies import check
 
-from .core.ConnectionListItem import ConnectionListItem
 
-API_EXIST = False
+DEPENDENCIES_EXIST = False
 try:
     import sshtunnel
-    API_EXIST = True
+    DEPENDENCIES_EXIST = True
 except:
     try:
         check(['sshtunnel'])
     finally:
         import sshtunnel
-        API_EXIST = True
+        DEPENDENCIES_EXIST = True
 
 
 class RemoteDB:
@@ -184,7 +183,7 @@ class RemoteDB:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/remote_db/icon.png'
+        icon_path = ':/plugins/remote_db/assets/icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Open SSH tunnels'),
@@ -197,7 +196,7 @@ class RemoteDB:
         # Discnonect all active connections on plugin close
         for conn in self.connectionManager.available_connections:
             if conn.is_connected:
-                self.disconnect(conn)
+                conn.disconnect()
 
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
         self.pluginIsActive = False
@@ -229,7 +228,9 @@ class RemoteDB:
 
             self.dockwidget.add_conn_btn.clicked.connect(
                 self.add_connection_dialog)
-            
+
+            self.dockwidget.refresh_btn.clicked.connect(self.refresh_connections)
+
             self.dockwidget.open_settings_dir_btn.clicked.connect(
                 self.open_settings_folder)
 
@@ -240,34 +241,35 @@ class RemoteDB:
 
  
 
-    def report_status(self, status, message):
-        """
-        Sets the status label
-        """
-        if status == "connected":
-            self.dockwidget.status_label.setStyleSheet("color: lightgreen")
-            self.dockwidget.status_label.setText("connected")
-
-            self.dockwidget.status_report_label.setText(message)
-
-        if status == "disconnected":
-            self.dockwidget.status_label.setStyleSheet("color: gray")
-            self.dockwidget.status_label.setText("-")
-
-            self.dockwidget.status_report_label.setText(message)
-
-        if status == "error":
-            self.dockwidget.status_label.setStyleSheet("color: red")
-            self.dockwidget.status_label.setText("disconnected")
-
-            self.dockwidget.status_report_label.setText(message)
-
     def populate_connections_list(self):
         
         self.dockwidget.conn_list_widget.clear()
+
+        # If no connections exist, display a message
+        if len(self.connectionManager.available_connections) == 0:
+
+            custom_widget = QLabel()
+            custom_widget.setTextFormat(Qt.RichText)
+            custom_widget.setText(u"   <strong> No connections. </strong> Add a new connection using the button above!")
+            custom_widget.setWordWrap(True)
+            new_item = QListWidgetItem(self.dockwidget.conn_list_widget)
+            new_item.setSizeHint(custom_widget.sizeHint())
+            self.dockwidget.conn_list_widget.addItem(new_item)
+            self.dockwidget.conn_list_widget.setItemWidget(
+                new_item,
+                custom_widget
+            )
+
+        available_connections = self.connectionManager.available_connections
+        available_connections.sort(key=lambda d: d.name) 
         for available_connection in self.connectionManager.available_connections:
 
-            custom_widget = ConnectionListItem(connection=available_connection, parent=None)
+            # Instantiate a new ConnectionListItem
+            custom_widget = ConnectionListItem(connection=available_connection, connectionManager=self.connectionManager, parent=None)
+
+            # Signals
+            custom_widget.connectionEdited.connect(self.populate_connections_list)
+
             new_item = QListWidgetItem(self.dockwidget.conn_list_widget)
             new_item.setSizeHint(custom_widget.sizeHint())
             self.dockwidget.conn_list_widget.addItem(new_item)
@@ -277,15 +279,34 @@ class RemoteDB:
             )
 
 
+    def refresh_connections(self):
+        self.connectionManager.refresh_connections()
+        self.populate_connections_list()
+
     def add_connection_dialog(self):
         dialog = AddConnectionDialog()
         result = dialog.exec_()
         if result == QDialog.Accepted:
             connection_info = dialog.get_connection_info()
 
-            self.connectionManager.add_connection(connection_info)
-            # Repopulate connections list
-            self.populate_connections_list()
+            try:
+                self.connectionManager.add_connection(connection_info)
+
+                # Repopulate connections list
+                self.populate_connections_list()
+
+            # Duplicate connection Name
+            except ReferenceError as e:
+                notify_user = QMessageBox(self.dockwidget)
+                notify_user.setText(str(e))
+                notify_user.exec_()
+            # Invalid port
+            except ValueError as e:
+                notify_user = QMessageBox(self.dockwidget)
+                notify_user.setText("Ports must be integers in the range: 1001-65535")
+                notify_user.exec_()
+
+            
     
 
     def open_settings_folder(self):

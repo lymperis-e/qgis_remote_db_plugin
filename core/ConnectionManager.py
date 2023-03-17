@@ -2,12 +2,13 @@ import json
 import os
 from .Connection import Connection
 
-
 class ConnectionManager:
 
     def __init__(self):
+        
         self.SETTINGS_FOLDER = None
         self.CONNECTIONS_FILE = None
+
         self.available_connections = None
         self.open_connections = None
 
@@ -22,6 +23,13 @@ class ConnectionManager:
         self.available_connections = None
         self.open_connections = None
 
+    def create_empty_settings(self):
+        with open(self.CONNECTIONS_FILE, 'w') as f:
+            json.dump({
+                "connections": list()
+            }, f)
+
+
     def settings_exist(self):
         """
         Checks if the *connections* file exists, if not raises a FileNotFound error
@@ -33,8 +41,9 @@ class ConnectionManager:
             Boolean: only returns True, if no error was encountered
         """
         if not os.path.exists(self.CONNECTIONS_FILE):
-            raise FileNotFoundError(
-                "The connections.json file could not be found. You may need to reinstall the plugin and load all your connections again :(")
+            self.create_empty_settings()
+            #raise FileNotFoundError(
+            #    "The connections.json file could not be found. You may need to reinstall the plugin and load all your connections again :(")
 
         return True
 
@@ -70,10 +79,46 @@ class ConnectionManager:
                 "connections": connections_list
             }, f)
 
+    def refresh_connections(self):
+        """
+        Searches settings for changes and loads any new connections
+        """
+        self.settings_exist()
+
+        with open(self.CONNECTIONS_FILE, 'r') as f:
+            data = json.load(f)["connections"]
+
+            for param in data:
+                # Check if connection exists \
+                loaded_connection_names = [conn.name for conn in self.available_connections]
+                if not param["name"] in loaded_connection_names:
+                    self.available_connections.append(Connection(param))
+
     def add_connection(self, parameters):
-        connectionInstance = Connection(self.validate_parameters(parameters))
+
+        new_conn_params = self.validate_parameters(parameters)
+
+        # ensure that connection names are unique
+        if new_conn_params["name"] in [conn.name for conn in self.available_connections]:
+            raise ReferenceError("A connection with this name already exists. Please choose a different one")
+        
+        connectionInstance = Connection(new_conn_params)
         self.available_connections.append(connectionInstance)
         self.save_connections()
+
+
+    def edit_connection(self, connection, parameters):
+
+        new_conn_params = self.validate_parameters(parameters)
+
+        # Delete old instance
+        self.available_connections.remove(connection)
+
+        # Add new connection
+        connectionInstance = Connection(new_conn_params)
+        self.available_connections.append(connectionInstance)
+        self.save_connections()
+
 
     def remove_connection(self, connection):
         self.available_connections.remove(connection)
@@ -81,6 +126,9 @@ class ConnectionManager:
 
 
     def validate_parameters(self, parameters):
+        """
+        Check if the parameters given to create a new connection are valid
+        """
         return {
             "name":         str(parameters["name"]),
             "host":         str(parameters["host"]),
