@@ -161,3 +161,4 @@ cython_debug/
  
 connections.json
 *.zip
+remote_db.zip
