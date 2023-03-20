@@ -2,7 +2,7 @@
 name=Remote DB Plugin
 qgisMinimumVersion=3.0
 description=Manage and open SSH connections to remote database servers
-version=1.0
+version=1.1
 author=Lymperis Efstathios
 email=geo.elymperis@gmail.com
 
