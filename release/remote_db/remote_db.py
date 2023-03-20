@@ -34,7 +34,6 @@ from .core.ConnectionListItem import ConnectionListItem
 from .core.AddConnectionDialog import AddConnectionDialog
 
 
-
 class RemoteDB:
     """QGIS Plugin Implementation."""
 
