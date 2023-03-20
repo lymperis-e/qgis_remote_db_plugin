@@ -1,5 +1,5 @@
 import os
-<<<<<<< HEAD
+
 
 from .install_packages.check_dependencies import check
 
@@ -13,9 +13,7 @@ except:
     finally:
         from .sshtunnel.sshtunnel import SSHTunnelForwarder
         DEPENDENCIES_EXIST = True
-=======
-from sshtunnel import SSHTunnelForwarder
->>>>>>> bfffb7facf865cd80769c7a3ebb78af2380e2d47
+
 
 
 
