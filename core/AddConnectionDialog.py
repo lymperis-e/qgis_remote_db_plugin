@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QFormLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QIntValidator
+from PyQt5.QtCore import Qt
 from qgis.gui import QgsPasswordLineEdit
 class AddConnectionDialog(QDialog):
 
@@ -10,6 +11,13 @@ class AddConnectionDialog(QDialog):
         # Create form layout
         self.form_layout = QFormLayout()
         
+
+        self.security_notif_label = QLabel()
+        self.security_notif_label.setTextFormat(Qt.RichText)
+        self.security_notif_label.setWordWrap(True)
+        self.security_notif_label.setText("Warning: This information is stored in <strong>plain text</strong>")
+        self.form_layout.addRow(self.security_notif_label)
+
         # Add fields to form layout
         self.name_field = QLineEdit()
         self.form_layout.addRow(QLabel("Name:"), self.name_field)
@@ -49,6 +57,7 @@ class AddConnectionDialog(QDialog):
         self.form_layout.addRow(self.button_box)
         
         self.setLayout(self.form_layout)
+        
         
     def get_connection_info(self):
         connection_info = {
