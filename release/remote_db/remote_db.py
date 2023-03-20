@@ -33,6 +33,23 @@ from .core.ConnectionManager import ConnectionManager
 from .core.ConnectionListItem import ConnectionListItem
 from .core.AddConnectionDialog import AddConnectionDialog
 
+<<<<<<< HEAD
+=======
+from .install_packages.check_dependencies import check
+
+
+DEPENDENCIES_EXIST = False
+try:
+    import sshtunnel
+    DEPENDENCIES_EXIST = True
+except:
+    try:
+        check(['sshtunnel'])
+    finally:
+        import sshtunnel
+        DEPENDENCIES_EXIST = True
+
+>>>>>>> bfffb7facf865cd80769c7a3ebb78af2380e2d47
 
 class RemoteDB:
     """QGIS Plugin Implementation."""

@@ -19,7 +19,11 @@ about=Manage and open <b>ssh</b> connections to remote database servers. This pl
     It is recommended to choose a <b>different local</b> port for each connection, in order to be able to open many connections simultaneously. Also, ensure that each connection name is unique.
     You can manage your connections via the UI, or you can use the button <b>Settings Folder</b> to open the plugin folder, where the settings live. There, you will find a <b>connections.json</b>, which you can edit or replace in bulk. This is where your connections are stored.
     <b>Attention:</b> in connections.json, your credentials are stored in <b>PLAIN TEXT</b>. You 've been warned...
+<<<<<<< HEAD
     Depends on <a href="https://pypi.org/project/sshtunnel/">sshtunnel</a> python package, developed by <a href="https://github.com/pahaz">Pavel White</a>. It has been hard-coded into the plugin to simplify the installation process. Its own dependencies though have to be installed when installing the plugin. You will be automatically prompted to install them.
+=======
+    Depends on <a href="https://pypi.org/project/sshtunnel/">sshtunnel</a> python package. 
+>>>>>>> bfffb7facf865cd80769c7a3ebb78af2380e2d47
     Issues, requests, and contributions are welcome!
     
 changelog=''
