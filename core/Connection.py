@@ -7,7 +7,7 @@ try:
     DEPENDENCIES_EXIST = True
 except:
     try:
-        check(['sshtunnel'])
+        check(['sshtunnel', 'paramiko'])
     finally:
         from .sshtunnel.sshtunnel import SSHTunnelForwarder
         DEPENDENCIES_EXIST = True
