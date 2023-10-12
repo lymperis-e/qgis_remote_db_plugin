@@ -51,8 +51,8 @@ import threading
 from select import select
 from binascii import hexlify
 
-import paramiko
-
+from ..paramiko import paramiko
+ 
 if sys.version_info[0] < 3:  # pragma: no cover
     import Queue as queue
     import SocketServer as socketserver

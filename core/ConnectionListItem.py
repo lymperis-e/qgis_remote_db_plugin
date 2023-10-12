@@ -15,23 +15,22 @@ from qgis.PyQt.QtWidgets import (
     QToolButton,
     QSizePolicy,
     QGridLayout,
-    QMenu, QAction,
+    QMenu,
+    QAction,
     QMessageBox,
-    QDialog
+    QDialog,
 )
-from qgis.PyQt.QtCore import (
-    Qt,
-    pyqtSignal
-)
+from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgis.core import (
     QgsMessageLog,
 )
 
 from .EditConnectionDialog import EditConnectionDialog
+
+
 class ConnectionListItem(QWidget):
-    
     connectionDeleted = pyqtSignal()
-    connectionEdited  = pyqtSignal()
+    connectionEdited = pyqtSignal()
 
     def __init__(self, connection, connectionManager, parent=None):
         QWidget.__init__(self, parent)
@@ -48,10 +47,10 @@ class ConnectionListItem(QWidget):
         self.service_icon.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.service_icon.resize(24, 24)
 
-        # Status dot 
+        # Status dot
         self.status_label = QLabel(self)
         self.status_label.setTextFormat(Qt.RichText)
-        self.status_label.setText(u'\u2022')
+        self.status_label.setText("\u2022")
 
         if self.connection.is_connected:
             self.status_label.setStyleSheet("color: green; font-size: 30px")
@@ -59,7 +58,6 @@ class ConnectionListItem(QWidget):
             self.status_label.setStyleSheet("color: gray; font-size: 30px")
 
         self.layout.addWidget(self.status_label)
-
 
         # Description layout
         self.service_desc_layout = QGridLayout()
@@ -70,20 +68,24 @@ class ConnectionListItem(QWidget):
         self.service_name = QLabel(self)
         self.service_name.setTextFormat(Qt.RichText)
         self.service_name.setWordWrap(True)
-        self.service_name.setText(u"   <strong> {} </strong> {}".format(connection.name, connection.host))
+        self.service_name.setText(
+            "   <strong> {} </strong> {}".format(connection.name, connection.host)
+        )
         self.service_desc_layout.addWidget(self.service_name, 0, 0, 1, 3)
 
         # Info
         self.service_type = QLabel(self)
         self.service_type.setTextFormat(Qt.RichText)
         self.service_type.setWordWrap(False)
-        self.service_type.setText(u"   remote: {}, local: {}".format(connection.remote_port, connection.local_port))
+        self.service_type.setText(
+            "   remote: {}, local: {}".format(
+                connection.remote_port, connection.local_port
+            )
+        )
         self.service_type.setStyleSheet("color: blue; font-size: 10px")
         self.service_desc_layout.addWidget(self.service_type, 1, 0)
 
-        
         self.service_desc_layout.setColumnStretch(2, 1)
-
 
         # Connect Button
         self.connectButton = QToolButton()
@@ -97,9 +99,7 @@ class ConnectionListItem(QWidget):
 
         self.layout.addWidget(self.connectButton)
 
-
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showContextMenu)
@@ -111,7 +111,9 @@ class ConnectionListItem(QWidget):
 
             # Report status
             self.report_status(
-                "connected", f"> Tunnel opened. Forwarding remote service to local port {connection._server.local_bind_port}")
+                "connected",
+                f"> Tunnel opened. Forwarding remote service to local port {connection._server.local_bind_port}",
+            )
 
             # Set the connect button action to disconnect
             self.connectButton.setText("Disconnect")
@@ -120,9 +122,9 @@ class ConnectionListItem(QWidget):
         except Exception as e:
             # Report status
             self.report_status(
-                "error", f"> An error occured. Please opmen the Python Console to see more details")
-            
-
+                "error",
+                f"> An error occured. Please opmen the Python Console to see more details",
+            )
 
     def disconnect(self):
         connection = self.connection
@@ -131,14 +133,14 @@ class ConnectionListItem(QWidget):
 
         # Report status
         self.report_status(
-            "disconnected", f"> Connection {connection.name} disconnected")
+            "disconnected", f"> Connection {connection.name} disconnected"
+        )
 
         # Set the connect button action to disconnect
         self.connectButton.setText("Connect")
-        self.connectButton.clicked.connect(self.connect)  
-        
+        self.connectButton.clicked.connect(self.connect)
 
-    def report_status(self,status,message):
+    def report_status(self, status, message):
         """
         Sets the status label
         """
@@ -147,11 +149,9 @@ class ConnectionListItem(QWidget):
 
         if status == "disconnected":
             self.status_label.setStyleSheet("color: gray; font-size: 30px")
-   
 
         if status == "error":
             self.status_label.setStyleSheet("color: red; font-size: 30px")
-         
 
     def showContextMenu(self, point):
         menu = QMenu(self)
@@ -167,29 +167,34 @@ class ConnectionListItem(QWidget):
 
         menu.exec_(self.mapToGlobal(point))
 
-
     def delete_connection(self):
-        reply = QMessageBox.question(self, 'Confirm Deletion', 'Are you sure you want to delete the selected object?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-    
+        reply = QMessageBox.question(
+            self,
+            "Confirm Deletion",
+            "Are you sure you want to delete the selected object?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+
         # If the user clicked 'Yes', call the delObj() function
         if reply == QMessageBox.Yes:
             self.connectionManager.remove_connection(self.connection)
             self.connectionDeleted.emit()
 
-
     def edit_connection_dialog(self):
         dialog = EditConnectionDialog(self.connection.parameters)
         result = dialog.exec_()
         if result == QDialog.Accepted:
-
             connection_info = dialog.get_connection_info()
 
             try:
-                self.connectionManager.edit_connection(connection=self.connection, parameters=connection_info)
+                self.connectionManager.edit_connection(
+                    connection=self.connection, parameters=connection_info
+                )
 
                 # Repopulate connections list
                 self.connectionEdited.emit()
-                
+
             # Duplicate connection Name
             except ReferenceError as e:
                 notify_user = QMessageBox(self.dockwidget)
