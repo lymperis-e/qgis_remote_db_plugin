@@ -2,7 +2,7 @@
 name=Remote DB Plugin
 qgisMinimumVersion=3.0
 description=Manage and open SSH connections to remote database servers
-version=1.1
+version=1.2
 author=Lymperis Efstathios
 email=geo.elymperis@gmail.com
 
@@ -15,15 +15,21 @@ about=Manage and open <b>ssh</b> connections to remote database servers. This pl
         -<b>remote_port</b>: port on which the remote database/service is listening
         -<b>local_port</b>: local port to use for forwarding
         -<b>username</b>: remote computer username (must have ssh access)
-        -<b>password</b>: remote computer password
+        -<b>password</b> (optional): remote computer password
+        -<b>id_file</b> (optional): an ssh identity file to use instead of password
+        -<b>pkey_password</b> (optional): the passphrase to the key in the id file
+        -<b>ssh_proxy</b> (optional): proxy server to use, to connect to the remote host
+        -<b>ssh_proxy_enabled</b> (optional): wether to use the proxy server
+        
+
     It is recommended to choose a <b>different local</b> port for each connection, in order to be able to open many connections simultaneously. Also, ensure that each connection name is unique.
     You can manage your connections via the UI, or you can use the button <b>Settings Folder</b> to open the plugin folder, where the settings live. There, you will find a <b>connections.json</b>, which you can edit or replace in bulk. This is where your connections are stored.
     <b>Attention:</b> in connections.json, your credentials are stored in <b>PLAIN TEXT</b>. You 've been warned...
 
-    Depends on <a href="https://pypi.org/project/sshtunnel/">sshtunnel</a> python package, developed by <a href="https://github.com/pahaz">Pavel White</a>. It has been hard-coded into the plugin to simplify the installation process. Its own dependencies though have to be installed when installing the plugin. You will be automatically prompted to install them.
+    Depends on <a href="https://www.paramiko.org/">paramiko</a> and <a href="https://pypi.org/project/sshtunnel/">sshtunnel</a>. The latter, developed by <a href="https://github.com/pahaz">Pavel White</a> has been hard-coded into the plugin to simplify the installation process. Its own dependencies though have to be installed when installing the plugin. You will be automatically prompted to install them.
 
     
-changelog=''
+changelog='1. Enabled the use of IdentityFile instead of password, 2. Added option to use proxy'
 tracker=https://github.com/lymperis-e/qgis_remote_db_plugin/issues
 repository=https://github.com/lymperis-e/qgis_remote_db_plugin
 hasProcessingProvider=no
