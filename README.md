@@ -40,6 +40,25 @@ To set up a connection with the `remote_db` plugin in QGIS:
 12. Click "OK" to save the connection.
 13. The new connection should now appear in the list. Click `Connect` and you are good to go!
 
+## Advanced usage
+
+For advanced users, it is possible to edit your *connections.json* file directly. Click the button **'Open Settings Folder'** from the top of the plugin panel. A new window
+will open within the settings folder. Open *connections.json* with your prefered text editor and add your connection/s parameters manually. Available parameters are:
+
+
+`name`: Name of the connection, that will be displayed in the list
+`host`: IP or domain name of the remote host
+`ssh_port`: port listening for SSH
+`username`: username on remote host
+`password` (optional): password for username in remote host
+`id_file` (optional): an ssh [identity file](https://www.ssh.com/academy/ssh/identity-key) 
+`pkey_password` (optional): the passphrase to the key in the id file.
+`ssh_proxy` (optional): proxy server to use, to connect to the remote host
+`ssh_proxy_enabled` (optional): use the proxy server
+`remote_port`: port from remote host to forward to localhost
+`local_port`: local port to expose remote service on
+
+
 ## Requirements
 
 - QGIS 3.0 or later

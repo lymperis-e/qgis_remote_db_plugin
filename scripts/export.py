@@ -1,5 +1,26 @@
 """
-Creates a release and copies it over to the QGIS plugins folder.
+Creates a plugin release .zip, and copies the build over to the QGIS plugins folder.
+
+Copyright (c) Efstathios Lymperis (geo.elymperis@gmail.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
 """
 import os
 import shutil
@@ -46,7 +67,7 @@ def copy_files(src_dir, dest_dir, exclude_list):
             shutil.copy2(src_item, dest_item)
 
 
-def create_release(src_dir, dest_dir, exclude_list):
+def create_release(plugin_name, src_dir, dest_dir, exclude_list):
     # Create the release directory
     clear_or_create_directory(dest_dir)
 
@@ -54,7 +75,7 @@ def create_release(src_dir, dest_dir, exclude_list):
     copy_files(src_dir, dest_dir, exclude_list)
 
     # Create the release zip file
-    zip_file = os.path.join(src_dir, "release", "remote_db.zip")
+    zip_file = os.path.join(src_dir, "release", f"{plugin_name}.zip")
     print(f"Creating release zip file at {zip_file}...")
     with zipfile.ZipFile(zip_file, "w", zipfile.ZIP_DEFLATED) as zip:
         for root, dirs, files in os.walk(dest_dir):
@@ -96,11 +117,59 @@ def copy_release_to_qgis_plugins(src_dir, dest_dir):
     print("Release copied successfully.")
 
 
+def get_qgis_plugins_dir():
+    platform = sys.platform
+    print(f"Platform: {platform}")
+
+    if platform == "win32":
+        qgis_plugins_dir = os.path.join(
+            os.environ["USERPROFILE"],
+            "AppData",
+            "Roaming",
+            "QGIS",
+            "QGIS3",
+            "profiles",
+            "default",
+            "python",
+            "plugins",
+        )
+
+    # linux
+    elif platform == "linux":
+        qgis_plugins_dir = os.path.join(
+            os.environ["HOME"],
+            ".local",
+            "share",
+            "QGIS",
+            "QGIS3",
+            "profiles",
+            "default",
+            "python",
+            "plugins",
+        )
+
+    # macos
+    elif platform == "darwin":
+        qgis_plugins_dir = os.path.join(
+            os.environ["HOME"],
+            "Library",
+            "Application Support",
+            "QGIS",
+            "QGIS3",
+            "profiles",
+            "default",
+            "python",
+            "plugins",
+        )
+
+    return qgis_plugins_dir
+
+
 def main():
     plugin_name = "remote_db"
     script_dir = os.path.dirname(os.path.abspath(__file__))
     src_dir = os.path.dirname(script_dir)
-    dest_dir = os.path.join(src_dir, "release", "remote_db")
+    dest_dir = os.path.join(src_dir, "release", plugin_name)
     exclude_list = [
         "Makefile",
         ".git",
@@ -117,27 +186,20 @@ def main():
 
     print(f"Copying files from {src_dir} to {dest_dir}...")
 
-    create_release(src_dir, dest_dir, exclude_list)
+    create_release(plugin_name, src_dir, dest_dir, exclude_list)
 
     # Copy the release to the QGIS plugins folder
     qgis_plugins_dir = os.path.join(
-        os.environ["USERPROFILE"],
-        "AppData",
-        "Roaming",
-        "QGIS",
-        "QGIS3",
-        "profiles",
-        "default",
-        "python",
-        "plugins",
+        get_qgis_plugins_dir(),
         plugin_name,
     )
     copy_release_to_qgis_plugins(dest_dir, qgis_plugins_dir)
 
     print("Files copied successfully.")
 
-    # Clear the release directory
+    # Clear & remove the release directory
     clear_directory(dest_dir)
+    os.rmdir(dest_dir)
 
     # Open the QGIS plugins folder
     subprocess.Popen(f'explorer "{qgis_plugins_dir}"')
