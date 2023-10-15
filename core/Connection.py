@@ -1,4 +1,3 @@
-import os
 from .install_packages.check_dependencies import check
 
 DEPENDENCIES_EXIST = False
@@ -8,7 +7,7 @@ try:
     DEPENDENCIES_EXIST = True
 except:
     try:
-        check(["sshtunnel", "paramiko"])
+        check(["paramiko"])
     finally:
         from .sshtunnel.sshtunnel import SSHTunnelForwarder
 
