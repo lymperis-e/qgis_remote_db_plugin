@@ -7,6 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to publish a QGIS plugin
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2 # This step will checkout your code, including the 'release' folder.
+
       - name: Post the plugin release to QGIS plugins repository
         id: publish
         uses: lymperis-e/publish-qgis-plugin-javascript-action@v1.6
