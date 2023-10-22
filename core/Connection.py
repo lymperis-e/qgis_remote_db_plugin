@@ -18,20 +18,20 @@ class Connection:
     def __init__(self, connection_params):
         self.parameters = connection_params
 
-        self.name = connection_params["name"]
-        self.host = connection_params["host"]
-        self.ssh_port = connection_params["ssh_port"]
-        self.user = connection_params["username"]
+        self.name = connection_params.get("name", "")
+        self.host = connection_params.get("host", "")
+        self.ssh_port = connection_params.get("ssh_port", 22)
+        self.user = connection_params.get("username", "")
 
-        self.id_file = connection_params["id_file"]
-        self.pkey_password = connection_params["pkey_password"]
+        self.id_file = connection_params.get("id_file", "")
+        self.pkey_password = connection_params.get("pkey_password", "")
 
-        self.ssh_proxy = connection_params["ssh_proxy"]
-        self.ssh_proxy_enabled = connection_params["ssh_proxy_enabled"]
+        self.ssh_proxy = connection_params.get("ssh_proxy", "")
+        self.ssh_proxy_enabled = connection_params.get("ssh_proxy_enabled", False)
 
-        self.password = connection_params["password"]
-        self.remote_port = connection_params["remote_port"]
-        self.local_port = connection_params["local_port"]
+        self.password = connection_params.get("password", "")
+        self.remote_port = connection_params.get("remote_port", 22)
+        self.local_port = connection_params.get("local_port", 0)
 
         self._server = self._get_server()
         self.is_connected = False
