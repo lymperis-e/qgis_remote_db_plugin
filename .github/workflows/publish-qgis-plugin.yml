@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Post the plugin release to QGIS plugins repository
         id: publish
-        uses: lymperis-e/publish-qgis-plugin-javascript-action@v1.3
+        uses: lymperis-e/publish-qgis-plugin-javascript-action@v1.6
         with:
           release-zip-path: "./release/remote_db.zip"
           osgeo-id: ${{ secrets.OSGEO_ID }}
