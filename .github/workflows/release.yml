@@ -1,3 +1,5 @@
+name: Publish Plugin
+
 on:
   release:
     types: published
