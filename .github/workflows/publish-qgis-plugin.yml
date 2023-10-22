@@ -1,20 +1,19 @@
 on: [push]
 
 jobs:
-  hello_world_job:
+  publish-qgis-plugin:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: A job to publish a QGIS plugin
     steps:
-      - name: Hello world action step
-        id: hello
+      - name: Post the plugin release to QGIS plugins repository
+        id: publish
         uses: lymperis-e/publish-qgis-plugin-javascript-action
         with:
           release-zip-path: "./release/remote_db.zip"
-          #qgis-version: "3.10"
-          #qgis-repository: "https://plugins.qgis.org/plugins/plugins.xml?qgis=3.10"
           osgeo-id: ${{ secrets.OSGEO_ID }}
           osgeo-password: ${{ secrets.OSGEO_PASSWORD }}
+          #qgis-version: "3.10"
+          #qgis-repository: "https://plugins.qgis.org/plugins/plugins.xml?qgis=3.10"
 
-      # Use the output from the `hello` step
       - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
+        run: echo "The time was ${{ steps.publish.outputs.success }}"
