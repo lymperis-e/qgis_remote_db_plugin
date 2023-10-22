@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QCheckBox,
-    QFileDialog,
     QPushButton,
     QVBoxLayout,
 )
@@ -89,8 +88,9 @@ class AddConnectionDialog(QDialog):
         self.setLayout(self.form_layout)
 
         # Only if use_id_file is checked, show the following fields: id_file_field, pkey_password_field
-        # Only if ssh_proxy_enabled is checked, show the following fields: ssh_proxy_field
         self.use_id_file.stateChanged.connect(self.toggle_id_file_fields)
+
+        # Only if ssh_proxy_enabled is checked, show the following fields: ssh_proxy_field
         self.ssh_proxy_enabled_field.stateChanged.connect(self.toggle_ssh_proxy_fields)
 
         self.toggle_id_file_fields()
