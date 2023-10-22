@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
  
 connections.json
-*.zip
-remote_db.zip
+#*.zip
+#remote_db.zip
