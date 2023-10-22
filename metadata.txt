@@ -29,7 +29,7 @@ about=Manage and open <b>ssh</b> connections to remote database servers. This pl
     Depends on <a href="https://www.paramiko.org/">paramiko</a> and <a href="https://pypi.org/project/sshtunnel/">sshtunnel</a>. The latter, developed by <a href="https://github.com/pahaz">Pavel White</a> has been hard-coded into the plugin to simplify the installation process. Its own dependencies though have to be installed when installing the plugin. You will be automatically prompted to install them.
 
     
-changelog='1. Enabled the use of IdentityFile instead of password, 2. Added option to use proxy'
+changelog='Allow different remote bind address (other than 127.0.0.1)'
 tracker=https://github.com/lymperis-e/qgis_remote_db_plugin/issues
 repository=https://github.com/lymperis-e/qgis_remote_db_plugin
 hasProcessingProvider=no
