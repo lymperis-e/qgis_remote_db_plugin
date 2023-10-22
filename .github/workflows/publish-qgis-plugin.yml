@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: Post the plugin release to QGIS plugins repository
         id: publish
-        uses: "lymperis-e/publish-qgis-plugin-javascript-action"
+        uses: lymperis-e/publish-qgis-plugin-javascript-action@v1.1
         with:
           release-zip-path: "./release/remote_db.zip"
           osgeo-id: ${{ secrets.OSGEO_ID }}
@@ -16,4 +16,4 @@ jobs:
           #qgis-repository: "https://plugins.qgis.org/plugins/plugins.xml?qgis=3.10"
 
       - name: Get the output time
-        run: echo "The time was ${{ steps.publish.outputs.success }}"
+        run: echo "The time was ${{ steps.publish.outputs.published_url }}"
