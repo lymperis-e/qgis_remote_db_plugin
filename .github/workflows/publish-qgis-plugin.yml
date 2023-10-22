@@ -1,3 +1,5 @@
+name: CI - Publish to QGIS plugins repository
+
 on: [push]
 
 jobs:
@@ -7,7 +9,7 @@ jobs:
     steps:
       - name: Post the plugin release to QGIS plugins repository
         id: publish
-        uses: lymperis-e/publish-qgis-plugin-javascript-action@v1.1
+        uses: lymperis-e/publish-qgis-plugin-javascript-action@v1.3
         with:
           release-zip-path: "./release/remote_db.zip"
           osgeo-id: ${{ secrets.OSGEO_ID }}
