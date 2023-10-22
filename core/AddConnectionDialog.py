@@ -7,9 +7,11 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QVBoxLayout,
 )
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QIntValidator, QColor
 from PyQt5.QtCore import Qt
 from qgis.gui import QgsPasswordLineEdit, QgsFileWidget
+
+from .utils.QtValidators import IPAddressValidator, PortValidator
 
 
 class AddConnectionDialog(QDialog):
@@ -33,18 +35,26 @@ class AddConnectionDialog(QDialog):
         self.form_layout.addRow(QLabel("Name:"), self.name_field)
 
         self.host_field = QLineEdit()
+        self.host_field.setValidator(IPAddressValidator())
         self.form_layout.addRow(QLabel("Host:"), self.host_field)
 
         self.ssh_port_field = QLineEdit()
-        self.ssh_port_field.setValidator(QIntValidator(1001, 65535, self))
+        self.ssh_port_field.setValidator(PortValidator())
         self.form_layout.addRow(QLabel("SSH Port:"), self.ssh_port_field)
 
+        self.remote_bind_address_field = QLineEdit()
+        self.remote_bind_address_field.setValidator(IPAddressValidator())
+        self.remote_bind_address_field.setText("127.0.0.1")
+        self.form_layout.addRow(
+            QLabel("Remote Bind Address:"), self.remote_bind_address_field
+        )
+
         self.remote_port_field = QLineEdit()
-        self.remote_port_field.setValidator(QIntValidator(1001, 65535, self))
+        self.remote_port_field.setValidator(PortValidator())
         self.form_layout.addRow(QLabel("Remote Port:"), self.remote_port_field)
 
         self.local_port_field = QLineEdit()
-        self.local_port_field.setValidator(QIntValidator(1001, 65535, self))
+        self.local_port_field.setValidator(PortValidator())
         self.form_layout.addRow(QLabel("Local Port:"), self.local_port_field)
 
         self.username_field = QLineEdit()
@@ -87,14 +97,55 @@ class AddConnectionDialog(QDialog):
         # Set layout
         self.setLayout(self.form_layout)
 
+        # Setup all the signals
+        self.connect_signals()
+
+        self.toggle_id_file_fields()
+        self.toggle_ssh_proxy_fields()
+
+    def connect_signals(self):
+        self.host_field.textChanged.connect(self.validate_and_enable_ok_button)
+        self.ssh_port_field.textChanged.connect(self.validate_and_enable_ok_button)
+        self.remote_bind_address_field.textChanged.connect(
+            self.validate_and_enable_ok_button
+        )
+        self.remote_port_field.textChanged.connect(self.validate_and_enable_ok_button)
+        self.local_port_field.textChanged.connect(self.validate_and_enable_ok_button)
+        self.username_field.textChanged.connect(self.validate_and_enable_ok_button)
+
         # Only if use_id_file is checked, show the following fields: id_file_field, pkey_password_field
         self.use_id_file.stateChanged.connect(self.toggle_id_file_fields)
 
         # Only if ssh_proxy_enabled is checked, show the following fields: ssh_proxy_field
         self.ssh_proxy_enabled_field.stateChanged.connect(self.toggle_ssh_proxy_fields)
 
-        self.toggle_id_file_fields()
-        self.toggle_ssh_proxy_fields()
+    def validate_and_enable_ok_button(self):
+        field_color = QColor("red")
+
+        # Create a list to store the validation status of all fields
+        field_validators = [
+            (self.name_field, self.name_field.hasAcceptableInput()),
+            (self.host_field, self.host_field.hasAcceptableInput()),
+            (self.ssh_port_field, self.ssh_port_field.hasAcceptableInput()),
+            (
+                self.remote_bind_address_field,
+                self.remote_bind_address_field.hasAcceptableInput(),
+            ),
+            (self.remote_port_field, self.remote_port_field.hasAcceptableInput()),
+            (self.local_port_field, self.local_port_field.hasAcceptableInput()),
+            (self.username_field, bool(self.username_field.text())),
+        ]
+
+        # Enable the OK button if all validators are True, and set the text color accordingly
+        all_valid = all(valid for _, valid in field_validators)
+
+        for field, valid in field_validators:
+            if valid:
+                field.setStyleSheet("")  # Reset the text color
+            else:
+                field.setStyleSheet(f"color: {field_color.name()}")
+
+        self.ok_button.setEnabled(all_valid)
 
     def toggle_id_file_fields(self):
         if self.use_id_file.isChecked():
@@ -132,6 +183,7 @@ class AddConnectionDialog(QDialog):
             "name": self.name_field.text(),
             "host": self.host_field.text(),
             "ssh_port": self.ssh_port_field.text(),
+            "remote_bind_address": self.remote_bind_address_field.text(),
             "remote_port": self.remote_port_field.text(),
             "local_port": self.local_port_field.text(),
             "username": self.username_field.text(),

@@ -7,9 +7,11 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QCheckBox,
 )
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QIntValidator, QColor
 from PyQt5.QtCore import Qt
 from qgis.gui import QgsPasswordLineEdit, QgsFileWidget
+
+from .utils.QtValidators import IPAddressValidator, PortValidator
 
 
 class EditConnectionDialog(QDialog):
@@ -36,18 +38,25 @@ class EditConnectionDialog(QDialog):
         self.form_layout.addRow(QLabel("Name:"), self.name_field)
 
         self.host_field = QLineEdit()
+        self.host_field.setValidator(IPAddressValidator())
         self.form_layout.addRow(QLabel("Host:"), self.host_field)
 
         self.ssh_port_field = QLineEdit()
-        self.ssh_port_field.setValidator(QIntValidator(1001, 65535, self))
+        self.ssh_port_field.setValidator(PortValidator())
         self.form_layout.addRow(QLabel("SSH Port:"), self.ssh_port_field)
 
+        self.remote_bind_address_field = QLineEdit()
+        self.remote_bind_address_field.setValidator(IPAddressValidator())
+        self.form_layout.addRow(
+            QLabel("Remote Bind Address:"), self.remote_bind_address_field
+        )
+
         self.remote_port_field = QLineEdit()
-        self.remote_port_field.setValidator(QIntValidator(1001, 65535, self))
+        self.remote_port_field.setValidator(PortValidator())
         self.form_layout.addRow(QLabel("Remote Port:"), self.remote_port_field)
 
         self.local_port_field = QLineEdit()
-        self.local_port_field.setValidator(QIntValidator(1001, 65535, self))
+        self.local_port_field.setValidator(PortValidator())
         self.form_layout.addRow(QLabel("Local Port:"), self.local_port_field)
 
         self.username_field = QLineEdit()
@@ -89,18 +98,59 @@ class EditConnectionDialog(QDialog):
         # Set the layout
         self.setLayout(self.form_layout)
 
+        # Setup all the signals
+        self.connect_signals()
+
+        # Initialize parameter values based on current configuration
+        self.initialize_parameter_values()
+
+        # Setup gui based on current configuration
+        self.toggle_id_file_fields()
+        self.toggle_ssh_proxy_fields()
+
+    def connect_signals(self):
+        self.host_field.textChanged.connect(self.validate_and_enable_ok_button)
+        self.ssh_port_field.textChanged.connect(self.validate_and_enable_ok_button)
+        self.remote_bind_address_field.textChanged.connect(
+            self.validate_and_enable_ok_button
+        )
+        self.remote_port_field.textChanged.connect(self.validate_and_enable_ok_button)
+        self.local_port_field.textChanged.connect(self.validate_and_enable_ok_button)
+        self.username_field.textChanged.connect(self.validate_and_enable_ok_button)
+
         # Only if use_id_file is checked, show the following fields: id_file_field, pkey_password_field
         self.use_id_file.stateChanged.connect(self.toggle_id_file_fields)
 
         # Only if ssh_proxy_enabled is checked, show the following fields: ssh_proxy_field
         self.ssh_proxy_enabled_field.stateChanged.connect(self.toggle_ssh_proxy_fields)
 
-        # Connect signals
-        self.toggle_id_file_fields()
-        self.toggle_ssh_proxy_fields()
+    def validate_and_enable_ok_button(self):
+        field_color = QColor("red")
 
-        # Initialize parameter values based on current configuration
-        self.initialize_parameter_values()
+        # Create a list to store the validation status of all fields
+        field_validators = [
+            (self.name_field, self.name_field.hasAcceptableInput()),
+            (self.host_field, self.host_field.hasAcceptableInput()),
+            (self.ssh_port_field, self.ssh_port_field.hasAcceptableInput()),
+            (
+                self.remote_bind_address_field,
+                self.remote_bind_address_field.hasAcceptableInput(),
+            ),
+            (self.remote_port_field, self.remote_port_field.hasAcceptableInput()),
+            (self.local_port_field, self.local_port_field.hasAcceptableInput()),
+            (self.username_field, bool(self.username_field.text())),
+        ]
+
+        # Enable the OK button if all validators are True, and set the text color accordingly
+        all_valid = all(valid for _, valid in field_validators)
+
+        for field, valid in field_validators:
+            if valid:
+                field.setStyleSheet("")  # Reset the text color
+            else:
+                field.setStyleSheet(f"color: {field_color.name()}")
+
+        self.ok_button.setEnabled(all_valid)
 
     def toggle_id_file_fields(self):
         if self.use_id_file.isChecked():
@@ -133,20 +183,81 @@ class EditConnectionDialog(QDialog):
     def get_checked_or_none(self, field):
         return field.isChecked() if field.isChecked() else None
 
+    def get_parameters(self):
+        """
+        Load parameters from the current configuration and set the values of the fields
+        safely, to handle the case where the parameters are None
+        """
+
+        return {
+            "name": self.parameters.get("name"),
+            "host": self.parameters.get("host"),
+            "ssh_port": self.parameters.get("ssh_port"),
+            "remote_bind_address": self.parameters.get("remote_bind_address"),
+            "remote_port": self.parameters.get("remote_port"),
+            "local_port": self.parameters.get("local_port"),
+            "username": self.parameters.get("username"),
+            "password": self.parameters.get("password"),
+            "id_file": self.parameters.get("id_file"),
+            "pkey_password": self.parameters.get("pkey_password"),
+            "ssh_proxy": self.parameters.get("ssh_proxy"),
+            "ssh_proxy_enabled": self.parameters.get("ssh_proxy_enabled"),
+        }
+
     def initialize_parameter_values(self):
-        self.name_field.setText(self.parameters["name"])
-        self.host_field.setText(self.parameters["host"])
-        self.ssh_port_field.setText(str(self.parameters["ssh_port"]))
-        self.remote_port_field.setText(str(self.parameters["remote_port"]))
-        self.local_port_field.setText(str(self.parameters["local_port"]))
-        self.username_field.setText(self.parameters["username"])
-        self.password_field.setText(self.parameters["password"])
+        name = str(self.parameters.get("name"))
+        host = str(self.parameters.get("host"))
+        ssh_port = str(self.parameters.get("ssh_port"))
+        remote_bind_address = str(self.parameters.get("remote_bind_address"))
+        remote_port = str(self.parameters.get("remote_port"))
+        local_port = str(self.parameters.get("local_port"))
+        username = str(self.parameters.get("username"))
+        password = (
+            str(self.parameters.get("password"))
+            if self.parameters.get("password")
+            else None
+        )
+        id_file = (
+            str(self.parameters.get("id_file"))
+            if self.parameters.get("id_file")
+            else None
+        )
+        pkey_password = (
+            str(self.parameters.get("pkey_password"))
+            if self.parameters.get("pkey_password")
+            else None
+        )
+        ssh_proxy = (
+            str(self.parameters.get("ssh_proxy"))
+            if self.parameters.get("ssh_proxy")
+            else None
+        )
+        ssh_proxy_enabled = self.parameters.get("ssh_proxy_enabled") is True
+
+        self.name_field.setText(name)
+        self.host_field.setText(host)
+        self.ssh_port_field.setText(ssh_port)
+        self.remote_bind_address_field.setText(remote_bind_address)
+        self.remote_port_field.setText(remote_port)
+        self.local_port_field.setText(local_port)
+        self.username_field.setText(username)
+        self.password_field.setText(password)
+        self.id_file_field.setFilePath(id_file)
+        self.pkey_password_field.setText(pkey_password)
+        self.ssh_proxy_field.setText(ssh_proxy)
+
+        # Checkboxes
+        self.ssh_proxy_enabled_field.setChecked(ssh_proxy_enabled)
+
+        # If id_file is not None, then use_id_file should be checked
+        self.use_id_file.setChecked(id_file is not None)
 
     def get_connection_info(self):
         connection_info = {
             "name": self.name_field.text(),
             "host": self.host_field.text(),
             "ssh_port": self.ssh_port_field.text(),
+            "remote_bind_address": self.remote_bind_address_field.text(),
             "remote_port": self.remote_port_field.text(),
             "local_port": self.local_port_field.text(),
             "username": self.username_field.text(),
@@ -154,6 +265,7 @@ class EditConnectionDialog(QDialog):
             "id_file": self.get_path_or_none(self.id_file_field),
             "pkey_password": self.get_text_or_none(self.pkey_password_field)
             if self.use_id_file.isChecked()
+            and self.id_file_field.filePath() is not None
             else None,
             "ssh_proxy": self.get_text_or_none(self.ssh_proxy_field)
             if self.ssh_proxy_enabled_field.isChecked()

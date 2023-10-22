@@ -197,11 +197,17 @@ class ConnectionListItem(QWidget):
 
             # Duplicate connection Name
             except ReferenceError as e:
-                notify_user = QMessageBox(self.dockwidget)
+                notify_user = QMessageBox(self)
                 notify_user.setText(str(e))
                 notify_user.exec_()
+
             # Invalid port
             except ValueError as e:
-                notify_user = QMessageBox(self.dockwidget)
-                notify_user.setText("Ports must be integers in the range: 1001-65535")
+                notify_user = QMessageBox(self)
+                notify_user.setText(str(e))
                 notify_user.exec_()
+
+            except Exception as e:
+                error_message = QMessageBox(self)
+                error_message.setText(f"An error occurred: {str(e)}")
+                error_message.exec_()
