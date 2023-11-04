@@ -34,7 +34,6 @@ from .core.ConnectionListItem import ConnectionListItem
 from .core.AddConnectionDialog import AddConnectionDialog
 
 
-
 class RemoteDB:
     """QGIS Plugin Implementation."""
 
@@ -53,11 +52,10 @@ class RemoteDB:
         self.plugin_dir = os.path.dirname(__file__)
 
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'RemoteDB_{}.qm'.format(locale))
+            self.plugin_dir, "i18n", "RemoteDB_{}.qm".format(locale)
+        )
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -66,12 +64,9 @@ class RemoteDB:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u' Remote DB Plugin')
-        # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'RemoteDB')
-        self.toolbar.setObjectName(u'RemoteDB')
-
-        # print "** INITIALIZING RemoteDB"
+        self.menu = self.tr(" Remote DB Plugin")
+        self.toolbar = self.iface.addToolBar("RemoteDB")
+        self.toolbar.setObjectName("RemoteDB")
 
         self.pluginIsActive = False
         self.dockwidget = None
@@ -92,19 +87,20 @@ class RemoteDB:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('RemoteDB', message)
+        return QCoreApplication.translate("RemoteDB", message)
 
     def add_action(
-            self,
-            icon_path,
-            text,
-            callback,
-            enabled_flag=True,
-            add_to_menu=True,
-            add_to_toolbar=True,
-            status_tip=None,
-            whats_this=None,
-            parent=None):
+        self,
+        icon_path,
+        text,
+        callback,
+        enabled_flag=True,
+        add_to_menu=True,
+        add_to_toolbar=True,
+        status_tip=None,
+        whats_this=None,
+        parent=None,
+    ):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -159,9 +155,7 @@ class RemoteDB:
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToDatabaseMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToDatabaseMenu(self.menu, action)
 
         self.actions.append(action)
 
@@ -170,12 +164,15 @@ class RemoteDB:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/remote_db/icon.png'
+        icon_path = os.path.join(
+            os.path.dirname(__file__), "icon.png"
+        )  # ":/plugins/remote_db/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr(u'Open SSH tunnels'),
+            text=self.tr("Open SSH tunnels to remote databases"),
             callback=self.run,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow(),
+        )
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
@@ -191,9 +188,7 @@ class RemoteDB:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
-            self.iface.removePluginDatabaseMenu(
-                self.tr(u'& Remote DB Plugin'),
-                action)
+            self.iface.removePluginDatabaseMenu(self.tr("& Remote DB Plugin"), action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
@@ -213,46 +208,44 @@ class RemoteDB:
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
-            self.dockwidget.add_conn_btn.clicked.connect(
-                self.add_connection_dialog)
+            self.dockwidget.add_conn_btn.clicked.connect(self.add_connection_dialog)
 
             self.dockwidget.refresh_btn.clicked.connect(self.refresh_connections)
 
             self.dockwidget.open_settings_dir_btn.clicked.connect(
-                self.open_settings_folder)
+                self.open_settings_folder
+            )
 
             self.populate_connections_list()
 
             self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
- 
-
     def populate_connections_list(self):
-        
         self.dockwidget.conn_list_widget.clear()
 
         # If no connections exist, display a message
         if len(self.connectionManager.available_connections) == 0:
-
             custom_widget = QLabel()
             custom_widget.setTextFormat(Qt.RichText)
-            custom_widget.setText(u"   <strong> No connections. </strong> Add a new connection using the button above!")
+            custom_widget.setText(
+                "   <strong> No connections. </strong> Add a new connection using the button above!"
+            )
             custom_widget.setWordWrap(True)
             new_item = QListWidgetItem(self.dockwidget.conn_list_widget)
             new_item.setSizeHint(custom_widget.sizeHint())
             self.dockwidget.conn_list_widget.addItem(new_item)
-            self.dockwidget.conn_list_widget.setItemWidget(
-                new_item,
-                custom_widget
-            )
+            self.dockwidget.conn_list_widget.setItemWidget(new_item, custom_widget)
 
         available_connections = self.connectionManager.available_connections
-        available_connections.sort(key=lambda d: d.name) 
+        available_connections.sort(key=lambda d: d.name)
         for available_connection in self.connectionManager.available_connections:
-
             # Instantiate a new ConnectionListItem
-            custom_widget = ConnectionListItem(connection=available_connection, connectionManager=self.connectionManager, parent=None)
+            custom_widget = ConnectionListItem(
+                connection=available_connection,
+                connectionManager=self.connectionManager,
+                parent=None,
+            )
 
             # Signals
             custom_widget.connectionEdited.connect(self.populate_connections_list)
@@ -260,11 +253,7 @@ class RemoteDB:
             new_item = QListWidgetItem(self.dockwidget.conn_list_widget)
             new_item.setSizeHint(custom_widget.sizeHint())
             self.dockwidget.conn_list_widget.addItem(new_item)
-            self.dockwidget.conn_list_widget.setItemWidget(
-                new_item,
-                custom_widget
-            )
-
+            self.dockwidget.conn_list_widget.setItemWidget(new_item, custom_widget)
 
     def refresh_connections(self):
         self.connectionManager.refresh_connections()
@@ -293,8 +282,7 @@ class RemoteDB:
                 notify_user.setText("Ports must be integers in the range: 1001-65535")
                 notify_user.exec_()
 
-            
-    
-
     def open_settings_folder(self):
-        QDesktopServices.openUrl(QUrl.fromLocalFile(self.connectionManager.SETTINGS_FOLDER))
+        QDesktopServices.openUrl(
+            QUrl.fromLocalFile(self.connectionManager.SETTINGS_FOLDER)
+        )

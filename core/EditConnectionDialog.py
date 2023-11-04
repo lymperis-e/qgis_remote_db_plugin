@@ -38,7 +38,6 @@ class EditConnectionDialog(QDialog):
         self.form_layout.addRow(QLabel("Name:"), self.name_field)
 
         self.host_field = QLineEdit()
-        self.host_field.setValidator(IPAddressValidator())
         self.form_layout.addRow(QLabel("Host:"), self.host_field)
 
         self.ssh_port_field = QLineEdit()
@@ -109,7 +108,6 @@ class EditConnectionDialog(QDialog):
         self.toggle_ssh_proxy_fields()
 
     def connect_signals(self):
-        self.host_field.textChanged.connect(self.validate_and_enable_ok_button)
         self.ssh_port_field.textChanged.connect(self.validate_and_enable_ok_button)
         self.remote_bind_address_field.textChanged.connect(
             self.validate_and_enable_ok_button
@@ -130,7 +128,6 @@ class EditConnectionDialog(QDialog):
         # Create a list to store the validation status of all fields
         field_validators = [
             (self.name_field, self.name_field.hasAcceptableInput()),
-            (self.host_field, self.host_field.hasAcceptableInput()),
             (self.ssh_port_field, self.ssh_port_field.hasAcceptableInput()),
             (
                 self.remote_bind_address_field,
