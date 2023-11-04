@@ -182,6 +182,7 @@ def main():
         "*.bat",
         ".gitignore",
         ".gitattributes",
+        "access_token",
     ]
 
     print(f"Copying files from {src_dir} to {dest_dir}...")
