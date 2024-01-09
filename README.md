@@ -1,8 +1,8 @@
 # QGIS Plugin: Remote DB
 
-[![CodeQL](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml)
-[![Code Style](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml)
+[![CodeQL](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml) [![Code Style](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml)
 
+![Plugin logo](img/logo.png)
 
 The Remote DB plugin for QGIS allows users to establish SSH tunnels to remote database servers, which can then be used for querying or other database operations within QGIS.
 
@@ -50,17 +50,20 @@ For advanced users, it is possible to edit your *connections.json* file directly
 will open within the settings folder. Open *connections.json* with your prefered text editor and add your connection/s parameters manually. Available parameters are:
 
 
-`name`: Name of the connection, that will be displayed in the list
-`host`: IP or domain name of the remote host
-`ssh_port`: port listening for SSH
-`username`: username on remote host
-`password` (optional): password for username in remote host
-`id_file` (optional): an ssh [identity file](https://www.ssh.com/academy/ssh/identity-key) 
-`pkey_password` (optional): the passphrase to the key in the id file.
-`ssh_proxy` (optional): proxy server to use, to connect to the remote host
-`ssh_proxy_enabled` (optional): use the proxy server
-`remote_port`: port from remote host to forward to localhost
-`local_port`: local port to expose remote service on
+| Parameter               | Description                                                                                      |
+|-------------------------|--------------------------------------------------------------------------------------------------|
+| `name`                  | Name of the connection, displayed in the list                                                     |
+| `host`                  | IP or domain name of the remote host                                                               |
+| `ssh_port`              | Port listening for SSH                                                                            |
+| `username`              | Username on the remote host                                                                       |
+| `password` (optional)   | Password for the username on the remote host (optional)                                            |
+| `id_file` (optional)    | SSH identity file (optional)                                                                     |
+| `pkey_password` (optional) | Passphrase for the SSH identity file (optional)                                                  |
+| `ssh_proxy` (optional)  | Proxy server to use for connecting to the remote host (optional)                                   |
+| `ssh_proxy_enabled` (optional) | Use the proxy server (optional)                                                              |
+| `remote_port`           | Port on the remote host to forward to localhost                                                  |
+| `local_port`            | Local port to expose the remote service on                                                         |
+
 
 
 ## Requirements
@@ -74,4 +77,3 @@ This is a new plugin. Although it has been tested in several machines, it is sti
 
 Suggestions & pull requests are more than welcome.
 
-![Plugin logo](img/logo.png)
