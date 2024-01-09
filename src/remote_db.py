@@ -278,7 +278,7 @@ class RemoteDB:
             except ValueError as e:
                 print(e)
                 notify_user = QMessageBox(self.dockwidget)
-                notify_user.setText("Ports must be integers in the range: 1001-65535")
+                notify_user.setText(str(e))
                 notify_user.exec_()
 
     def open_settings_folder(self):

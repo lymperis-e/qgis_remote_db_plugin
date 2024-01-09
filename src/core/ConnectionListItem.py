@@ -69,7 +69,7 @@ class ConnectionListItem(QWidget):
         self.service_name.setTextFormat(Qt.RichText)
         self.service_name.setWordWrap(True)
         self.service_name.setText(
-            "   <strong> {connection.name} </strong> {connection.host}"
+            f"   <strong> {connection.name} </strong> {connection.host}"
         )
         self.service_desc_layout.addWidget(self.service_name, 0, 0, 1, 3)
 

@@ -12,7 +12,7 @@ from PyQt5.QtGui import QIntValidator, QColor
 from PyQt5.QtCore import Qt
 from qgis.gui import QgsPasswordLineEdit, QgsFileWidget
 
-from .utils.QtValidators import IPAddressValidator, PortValidator
+from .utils.QtValidators import HostValidator, PortValidator
 
 
 # Parameters type
@@ -49,7 +49,7 @@ class EditConnectionDialog(QDialog):
         self.form_layout.addRow(QLabel("SSH Port:"), self.ssh_port_field)
 
         self.remote_bind_address_field = QLineEdit()
-        self.remote_bind_address_field.setValidator(IPAddressValidator())
+        self.remote_bind_address_field.setValidator(HostValidator())
         self.form_layout.addRow(
             QLabel("Remote Bind Address:"), self.remote_bind_address_field
         )

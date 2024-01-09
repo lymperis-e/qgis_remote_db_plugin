@@ -1,4 +1,5 @@
 import ipaddress
+import re
 from .install_packages.check_dependencies import check
 
 DEPENDENCIES_EXIST = False
@@ -41,20 +42,25 @@ class Connection:
         self._server = self._get_server()
         self.is_connected = False
 
-    def _validate_ip_format(self, ip_address):
+    def _validate_ip_or_domain(self, input_text):
+        # Check if the input is a valid IP address
         try:
-            ipaddress.IPv4Address(ip_address)
+            ipaddress.IPv4Address(input_text)
             return True
         except ipaddress.AddressValueError:
+            # Check if the input is a valid domain name
+            domain_pattern = r"^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            if re.match(domain_pattern, input_text):
+                return True
             return False
 
     def _get_server(self):
-        if not self._validate_ip_format(self.host):
+        if not self._validate_ip_or_domain(self.host):
             raise ValueError(
                 "Invalid remote host address format (Should be a valid IPv4 address)"
             )
 
-        if not self._validate_ip_format(self.remote_bind_address):
+        if not self._validate_ip_or_domain(self.remote_bind_address):
             raise ValueError(
                 "Invalid remote bind IP address format (Should be a valid IPv4 address)"
             )

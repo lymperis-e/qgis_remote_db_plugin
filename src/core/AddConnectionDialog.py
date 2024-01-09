@@ -11,7 +11,7 @@ from PyQt5.QtGui import QIntValidator, QColor
 from PyQt5.QtCore import Qt
 from qgis.gui import QgsPasswordLineEdit, QgsFileWidget
 
-from .utils.QtValidators import IPAddressValidator, PortValidator
+from .utils.QtValidators import HostValidator, PortValidator
 
 
 class AddConnectionDialog(QDialog):
@@ -38,11 +38,11 @@ class AddConnectionDialog(QDialog):
         self.form_layout.addRow(QLabel("Host:"), self.host_field)
 
         self.ssh_port_field = QLineEdit()
-        # self.ssh_port_field.setValidator(PortValidator())
+        self.ssh_port_field.setValidator(PortValidator())
         self.form_layout.addRow(QLabel("SSH Port:"), self.ssh_port_field)
 
         self.remote_bind_address_field = QLineEdit()
-        self.remote_bind_address_field.setValidator(IPAddressValidator())
+        self.remote_bind_address_field.setValidator(HostValidator())
         self.remote_bind_address_field.setText("127.0.0.1")
         self.form_layout.addRow(
             QLabel("Remote Bind Address:"), self.remote_bind_address_field
