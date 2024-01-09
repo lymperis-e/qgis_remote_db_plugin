@@ -68,6 +68,15 @@ def copy_files(src_dir, dest_dir, exclude_list):
 
 
 def create_release(plugin_name, src_dir, dest_dir, exclude_list):
+    """
+    Creates a plugin release .zip.
+
+    Args:
+        plugin_name (str): The name of the plugin.
+        src_dir (str): The source directory.
+        dest_dir (str): The destination directory.
+        exclude_list (list): A list of files to exclude.
+    """
     # Create the release directory
     clear_or_create_directory(dest_dir)
 
@@ -75,8 +84,10 @@ def create_release(plugin_name, src_dir, dest_dir, exclude_list):
     copy_files(src_dir, dest_dir, exclude_list)
 
     # Create the release zip file
-    zip_file = os.path.join(src_dir, "release", f"{plugin_name}.zip")
+    release_dir = os.path.dirname(dest_dir)
+    zip_file = os.path.join(release_dir, f"{plugin_name}.zip")
     print(f"Creating release zip file at {zip_file}...")
+
     with zipfile.ZipFile(zip_file, "w", zipfile.ZIP_DEFLATED) as zip:
         for root, dirs, files in os.walk(dest_dir):
             for file in files:
@@ -90,6 +101,9 @@ def create_release(plugin_name, src_dir, dest_dir, exclude_list):
 
 
 def copy_release_to_qgis_plugins(src_dir, dest_dir):
+    """
+    Copies the release to the QGIS plugins folder.
+    """
     print(f"Copying release to {dest_dir}...")
 
     # Clear the directory if it exists
@@ -117,7 +131,10 @@ def copy_release_to_qgis_plugins(src_dir, dest_dir):
     print("Release copied successfully.")
 
 
-def get_qgis_plugins_dir():
+def get_qgis_plugins_dir() -> str:
+    """
+    Returns the QGIS plugins directory for the current platform.
+    """
     platform = sys.platform
     print(f"Platform: {platform}")
 
@@ -162,14 +179,21 @@ def get_qgis_plugins_dir():
             "plugins",
         )
 
+    else:
+        raise Exception(f"Unsupported platform: {platform}")
+
     return qgis_plugins_dir
 
 
 def main():
+    """
+    Creates a plugin release .zip, and copies the build over to the QGIS plugins folder.
+    """
     plugin_name = "remote_db"
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    src_dir = os.path.dirname(script_dir)
-    dest_dir = os.path.join(src_dir, "release", plugin_name)
+    root_dir = os.path.dirname(script_dir)
+    src_dir = os.path.join(root_dir, "src")
+    dest_dir = os.path.join(root_dir, "release", plugin_name)
     exclude_list = [
         "Makefile",
         ".git",

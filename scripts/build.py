@@ -37,8 +37,9 @@ def copy_files(src_dir, dest_dir, exclude_list):
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    src_dir = os.path.dirname(script_dir)
-    dest_dir = os.path.join(src_dir, "release", "remote_db")
+    root_dir = os.path.dirname(script_dir)
+    src_dir = os.path.join(root_dir, "src")
+    dest_dir = os.path.join(root_dir, "release", "remote_db")
     exclude_list = [
         "Makefile",
         ".git",
