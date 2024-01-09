@@ -46,7 +46,7 @@ PY_FILES = \
 	__init__.py \
 	remote_db.py remote_db_dockwidget.py
 
-UI_FILES = remote_db_dockwidget_base.ui
+UI_FILES = ui/remote_db_dockwidget_base.ui
 
 EXTRAS = metadata.txt icon.png
 

@@ -165,7 +165,7 @@ class RemoteDB:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = os.path.join(
-            os.path.dirname(__file__), "icon.png"
+            os.path.dirname(__file__), "img", "icon.png"
         )  # ":/plugins/remote_db/icon.png"
         self.add_action(
             icon_path,
