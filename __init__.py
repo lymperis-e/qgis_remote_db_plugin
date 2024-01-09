@@ -33,4 +33,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .remote_db import RemoteDB
+
     return RemoteDB(iface)

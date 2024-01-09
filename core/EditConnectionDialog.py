@@ -1,3 +1,4 @@
+from typing import Dict, Optional, Union
 from PyQt5.QtWidgets import (
     QDialog,
     QFormLayout,
@@ -14,8 +15,11 @@ from qgis.gui import QgsPasswordLineEdit, QgsFileWidget
 from .utils.QtValidators import IPAddressValidator, PortValidator
 
 
+# Parameters type
+
+
 class EditConnectionDialog(QDialog):
-    def __init__(self, parameters=None, parent=None):
+    def __init__(self, parameters: Dict[str, Optional[str]], parent):
         super().__init__(parent)
         self.setWindowTitle("Edit Connection")
 
