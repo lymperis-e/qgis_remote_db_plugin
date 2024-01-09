@@ -21,13 +21,13 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os.path
+
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QUrl
 from qgis.PyQt.QtGui import QIcon, QDesktopServices
 from qgis.PyQt.QtWidgets import QAction, QDialog, QListWidgetItem, QLabel, QMessageBox
 
-
 from .resources import *
-import os.path
 from .remote_db_dockwidget import RemoteDBDockWidget
 from .core.ConnectionManager import ConnectionManager
 from .core.ConnectionListItem import ConnectionListItem
@@ -53,9 +53,7 @@ class RemoteDB:
 
         # initialize locale
         locale = QSettings().value("locale/userLocale")[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir, "i18n", "RemoteDB_{}.qm".format(locale)
-        )
+        locale_path = os.path.join(self.plugin_dir, "i18n", f"RemoteDB_{locale}.qm")
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -201,7 +199,7 @@ class RemoteDB:
         if not self.pluginIsActive:
             self.pluginIsActive = True
 
-            if self.dockwidget == None:
+            if self.dockwidget is None:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = RemoteDBDockWidget()
 
@@ -278,6 +276,7 @@ class RemoteDB:
                 notify_user.exec_()
             # Invalid port
             except ValueError as e:
+                print(e)
                 notify_user = QMessageBox(self.dockwidget)
                 notify_user.setText("Ports must be integers in the range: 1001-65535")
                 notify_user.exec_()

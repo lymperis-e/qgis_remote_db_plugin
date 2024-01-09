@@ -19,7 +19,7 @@ from .utils.QtValidators import IPAddressValidator, PortValidator
 
 
 class EditConnectionDialog(QDialog):
-    def __init__(self, parameters: Dict[str, Optional[str]], parent):
+    def __init__(self, parameters: Dict[str, Optional[str]] = None, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Edit Connection")
 

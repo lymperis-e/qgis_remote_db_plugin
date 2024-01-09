@@ -69,7 +69,7 @@ class ConnectionListItem(QWidget):
         self.service_name.setTextFormat(Qt.RichText)
         self.service_name.setWordWrap(True)
         self.service_name.setText(
-            "   <strong> {} </strong> {}".format(connection.name, connection.host)
+            "   <strong> {connection.name} </strong> {connection.host}"
         )
         self.service_desc_layout.addWidget(self.service_name, 0, 0, 1, 3)
 
@@ -78,9 +78,7 @@ class ConnectionListItem(QWidget):
         self.service_type.setTextFormat(Qt.RichText)
         self.service_type.setWordWrap(False)
         self.service_type.setText(
-            "   remote: {}, local: {}".format(
-                connection.remote_port, connection.local_port
-            )
+            f"   remote: {connection.remote_port}, local: {connection.local_port}"
         )
         self.service_type.setStyleSheet("color: blue; font-size: 10px")
         self.service_desc_layout.addWidget(self.service_type, 1, 0)
@@ -120,10 +118,10 @@ class ConnectionListItem(QWidget):
             self.connectButton.clicked.connect(self.disconnect)
 
         except Exception as e:
-            # Report status
+            print(e)
             self.report_status(
                 "error",
-                f"> An error occured. Please opmen the Python Console to see more details",
+                "> An error occured. See Python Console for details",
             )
 
     def disconnect(self):

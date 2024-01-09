@@ -5,11 +5,11 @@ from .Connection import Connection
 
 class ConnectionManager:
     def __init__(self):
-        self.SETTINGS_FOLDER = None
-        self.CONNECTIONS_FILE = None
+        # self.SETTINGS_FOLDER = None
+        # self.CONNECTIONS_FILE = None
 
-        self.available_connections = None
-        self.open_connections = None
+        # self.available_connections = None
+        # self.open_connections = None
 
         self.SETTINGS_FOLDER = os.path.join(
             os.path.dirname(os.path.dirname(__file__)), "settings"
@@ -50,7 +50,7 @@ class ConnectionManager:
         """
         self.settings_exist()
 
-        with open(self.CONNECTIONS_FILE, "r") as f:
+        with open(self.CONNECTIONS_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)["connections"]
 
             available_connections = list()
@@ -70,7 +70,7 @@ class ConnectionManager:
         for conn in self.available_connections:
             connections_list.append(conn.parameters)
 
-        with open(self.CONNECTIONS_FILE, "w") as f:
+        with open(self.CONNECTIONS_FILE, "w", encoding="utf-8") as f:
             json.dump({"connections": connections_list}, f)
 
     def refresh_connections(self):
@@ -79,7 +79,7 @@ class ConnectionManager:
         """
         self.settings_exist()
 
-        with open(self.CONNECTIONS_FILE, "r") as f:
+        with open(self.CONNECTIONS_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)["connections"]
 
             for param in data:

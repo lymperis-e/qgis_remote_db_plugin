@@ -38,7 +38,7 @@ class AddConnectionDialog(QDialog):
         self.form_layout.addRow(QLabel("Host:"), self.host_field)
 
         self.ssh_port_field = QLineEdit()
-        self.ssh_port_field.setValidator(PortValidator())
+        # self.ssh_port_field.setValidator(PortValidator())
         self.form_layout.addRow(QLabel("SSH Port:"), self.ssh_port_field)
 
         self.remote_bind_address_field = QLineEdit()
