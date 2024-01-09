@@ -1,7 +1,6 @@
 # QGIS Plugin: Remote DB
 
 [![CodeQL](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml)
-
 [![Code Style](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml)
 
 
