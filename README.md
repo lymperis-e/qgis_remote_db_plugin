@@ -74,3 +74,5 @@ will open within the settings folder. Open *connections.json* with your prefered
 This is a new plugin. Although it has been tested in several machines, it is still very likely that bugs may arise, especially in **installation**. Please report any issues you have in the repository's **Issues** , or send me an [e-mail](mailto:geo.elymperis@gmail.com) .I ;ll be more than happy to troubleshoot with you!
 
 Suggestions & pull requests are more than welcome.
+
+![Plugin logo](img/logo.png)
