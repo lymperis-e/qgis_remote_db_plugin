@@ -98,7 +98,7 @@ class ConnectionManager:
             conn.name for conn in self.available_connections
         ]:
             raise ReferenceError(
-                "A connection with this name already exists. Please choose a different one"
+                f"A connection with this name({new_conn_params['name']}) already exists. Please choose a different one"
             )
 
         connectionInstance = Connection(new_conn_params)

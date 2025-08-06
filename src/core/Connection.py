@@ -7,13 +7,37 @@ try:
     from .sshtunnel.sshtunnel import SSHTunnelForwarder
 
     DEPENDENCIES_EXIST = True
-except:
+except Exception as e:
     try:
-        check(["paramiko"])
+        check(["paramiko", "sshconf"])
     finally:
         from .sshtunnel.sshtunnel import SSHTunnelForwarder
 
         DEPENDENCIES_EXIST = True
+
+from dataclasses import dataclass
+from typing import Optional
+
+
+@dataclass
+class IConnection:
+    name: str
+    host: str
+    ssh_port: int = 22
+    username: str = ""
+    id_file: str = ""
+    pkey_password: str = ""
+    ssh_proxy: str = ""
+    ssh_proxy_enabled: bool = False
+    password: str = ""
+    remote_bind_address: str = "127.0.0.1"
+    remote_port: int = 22
+    local_port: int = 0
+    is_connected: bool = False
+
+    # Make the class subscriptable
+    def __getitem__(self, key):
+        return getattr(self, key, None)
 
 
 class Connection:
@@ -57,12 +81,12 @@ class Connection:
     def _get_server(self):
         if not self._validate_ip_or_domain(self.host):
             raise ValueError(
-                "Invalid remote host address format (Should be a valid IPv4 address)"
+                f"Remote host should be a valid IPv4 address. Got {self.host}"
             )
 
         if not self._validate_ip_or_domain(self.remote_bind_address):
             raise ValueError(
-                "Invalid remote bind IP address format (Should be a valid IPv4 address)"
+                f"Remote bind address should be a valid IPv4 address. Got {self.remote_bind_address}"
             )
 
         tunnel_server = SSHTunnelForwarder(

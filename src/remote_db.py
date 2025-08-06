@@ -33,6 +33,8 @@ from .core.ConnectionManager import ConnectionManager
 from .core.ConnectionListItem import ConnectionListItem
 from .core.AddConnectionDialog import AddConnectionDialog
 
+from .core.utils.ssh_config import load_from_ssh_config
+
 
 class RemoteDB:
     """QGIS Plugin Implementation."""
@@ -252,6 +254,28 @@ class RemoteDB:
             new_item.setSizeHint(custom_widget.sizeHint())
             self.dockwidget.conn_list_widget.addItem(new_item)
             self.dockwidget.conn_list_widget.setItemWidget(new_item, custom_widget)
+
+    def load_ssh_conf(self):
+        # TEST
+        config = load_from_ssh_config()
+        try:
+            for param in config:
+                self.connectionManager.add_connection(param)
+
+        # Duplicate connection Name
+        except ReferenceError as e:
+            notify_user = QMessageBox(self.dockwidget)
+            notify_user.setText(str(e))
+            notify_user.exec_()
+        # Invalid port
+        except ValueError as e:
+            print(e)
+            notify_user = QMessageBox(self.dockwidget)
+            notify_user.setText(str(e))
+            notify_user.exec_()
+
+        self.refresh_connections()
+        # END TEST
 
     def refresh_connections(self):
         self.connectionManager.refresh_connections()

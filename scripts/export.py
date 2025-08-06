@@ -227,7 +227,8 @@ def main():
     os.rmdir(dest_dir)
 
     # Open the QGIS plugins folder
-    subprocess.Popen(f'explorer "{qgis_plugins_dir}"')
+    print(f"Plugin installed successfully at {qgis_plugins_dir}.")
+    # subprocess.Popen(f'explorer "{qgis_plugins_dir}"')
 
 
 if __name__ == "__main__":
