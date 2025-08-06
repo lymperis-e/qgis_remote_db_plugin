@@ -1,19 +1,46 @@
 import ipaddress
 import re
-from .install_packages.check_dependencies import check
+import logging
+from .dependencies import check
 
 DEPENDENCIES_EXIST = False
 try:
     from .sshtunnel.sshtunnel import SSHTunnelForwarder
 
     DEPENDENCIES_EXIST = True
-except:
+except Exception as e:
     try:
-        check(["paramiko"])
+        check(["paramiko", "sshconf"])
     finally:
         from .sshtunnel.sshtunnel import SSHTunnelForwarder
 
         DEPENDENCIES_EXIST = True
+
+from dataclasses import dataclass
+
+# from .utils.timeout import timeout
+from .utils.logger import PLUGIN_LOGGER
+
+
+@dataclass
+class IConnection:
+    name: str
+    host: str
+    ssh_port: int = 22
+    username: str = ""
+    id_file: str = ""
+    pkey_password: str = ""
+    ssh_proxy: str = ""
+    ssh_proxy_enabled: bool = False
+    password: str = ""
+    remote_bind_address: str = "127.0.0.1"
+    remote_port: int = 22
+    local_port: int = 0
+    is_connected: bool = False
+
+    # Make the class subscriptable
+    def __getitem__(self, key):
+        return getattr(self, key, None)
 
 
 class Connection:
@@ -39,6 +66,8 @@ class Connection:
         self.remote_port = connection_params.get("remote_port", 22)
         self.local_port = connection_params.get("local_port", 0)
 
+        self.logger = PLUGIN_LOGGER
+
         self._server = self._get_server()
         self.is_connected = False
 
@@ -57,12 +86,12 @@ class Connection:
     def _get_server(self):
         if not self._validate_ip_or_domain(self.host):
             raise ValueError(
-                "Invalid remote host address format (Should be a valid IPv4 address)"
+                f"Remote host should be a valid IPv4 address. Got {self.host}"
             )
 
         if not self._validate_ip_or_domain(self.remote_bind_address):
             raise ValueError(
-                "Invalid remote bind IP address format (Should be a valid IPv4 address)"
+                f"Remote bind address should be a valid IPv4 address. Got {self.remote_bind_address}"
             )
 
         tunnel_server = SSHTunnelForwarder(
@@ -76,6 +105,7 @@ class Connection:
             remote_bind_address=(self.remote_bind_address, self.remote_port),
             local_bind_address=("0.0.0.0", self.local_port),
             ssh_port=self.ssh_port,
+            logger=self.logger,
         )
         return tunnel_server
 
@@ -84,10 +114,19 @@ class Connection:
             try:
                 self._server.start()
                 self.is_connected = True
-
             except Exception as e:
                 self.is_connected = False
+
+                # Delete server instance to avoid memory leaks and recreate it
+                self._server.stop()
+                # del self._server
+                self._server = None
+                self._server = self._get_server()
+
                 print(e)
+                print(self._server)
+        else:
+            raise ValueError("Server is not properly configured.")
 
     def disconnect(self):
         if self._server:

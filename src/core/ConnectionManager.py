@@ -1,27 +1,22 @@
 import json
 import os
+from typing import List
 from .Connection import Connection
 
 
 class ConnectionManager:
     def __init__(self):
-        # self.SETTINGS_FOLDER = None
-        # self.CONNECTIONS_FILE = None
-
-        # self.available_connections = None
-        # self.open_connections = None
-
         self.SETTINGS_FOLDER = os.path.join(
             os.path.dirname(os.path.dirname(__file__)), "settings"
         )
         self.CONNECTIONS_FILE = os.path.join(self.SETTINGS_FOLDER, "connections.json")
-        self.available_connections = self.load_connections()
-        self.open_connections = list()
+        self.available_connections: List[Connection] = self.load_connections()
+        self.open_connections: List[Connection] = []
 
     def _unload(self):
         self.CONNECTIONS_FILE = None
-        self.available_connections = None
-        self.open_connections = None
+        self.available_connections = []
+        self.open_connections = []
 
     def create_empty_settings(self):
         with open(self.CONNECTIONS_FILE, "w") as f:
@@ -44,7 +39,7 @@ class ConnectionManager:
 
         return True
 
-    def load_connections(self):
+    def load_connections(self) -> List[Connection]:
         """
         Loads the list of connections & credentials from the *connections* file
         """
@@ -53,7 +48,7 @@ class ConnectionManager:
         with open(self.CONNECTIONS_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)["connections"]
 
-            available_connections = list()
+            available_connections = []
             for param in data:
                 connectionInstance = Connection(param)
                 available_connections.append(connectionInstance)
@@ -98,7 +93,7 @@ class ConnectionManager:
             conn.name for conn in self.available_connections
         ]:
             raise ReferenceError(
-                "A connection with this name already exists. Please choose a different one"
+                f"A connection with this name({new_conn_params['name']}) already exists. Please choose a different one"
             )
 
         connectionInstance = Connection(new_conn_params)

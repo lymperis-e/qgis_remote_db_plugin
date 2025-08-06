@@ -225,7 +225,11 @@ def create_logger(
     Return:
         :class:`logging.Logger`
     """
-    logger = logger or logging.getLogger("sshtunnel.SSHTunnelForwarder")
+    logger = (
+        logger
+        or logging.getLogger("sshtunnel.SSHTunnelForwarder")
+        or logging.getLogger("sshtunnel")
+    )
     if not any(isinstance(x, logging.Handler) for x in logger.handlers):
         logger.setLevel(loglevel or DEFAULT_LOGLEVEL)
         console_handler = logging.StreamHandler()
@@ -1134,7 +1138,9 @@ class SSHTunnelForwarder(object):
 
         paramiko_key_types = {
             "rsa": paramiko.RSAKey,
-            "dsa": paramiko.DSSKey,
+            # "dsa": paramiko.DSSKey,
+            # Removed in paramiko 4.0.0, see [issue](https://github.com/lymperis-e/qgis_remote_db_plugin/issues/10),
+            # and relevant [changelog](https://www.paramiko.org/changelog.html#v4-0-0)
             "ecdsa": paramiko.ECDSAKey,
         }
         if hasattr(paramiko, "Ed25519Key"):
@@ -1358,7 +1364,11 @@ class SSHTunnelForwarder(object):
             paramiko.Pkey
         """
         ssh_pkey = None
-        key_types = (paramiko.RSAKey, paramiko.DSSKey, paramiko.ECDSAKey)
+        key_types = (
+            paramiko.RSAKey,
+            #  paramiko.DSSKey
+            paramiko.ECDSAKey,
+        )
         if hasattr(paramiko, "Ed25519Key"):
             # NOQA: new in paramiko>=2.2: http://docs.paramiko.org/en/stable/api/keys.html#module-paramiko.ed25519key
             key_types += (paramiko.Ed25519Key,)
@@ -1648,12 +1658,14 @@ class SSHTunnelForwarder(object):
     def __str__(self):
         credentials = {
             "password": self.ssh_password,
-            "pkeys": [
-                (key.get_name(), hexlify(key.get_fingerprint()))
-                for key in self.ssh_pkeys
-            ]
-            if any(self.ssh_pkeys)
-            else None,
+            "pkeys": (
+                [
+                    (key.get_name(), hexlify(key.get_fingerprint()))
+                    for key in self.ssh_pkeys
+                ]
+                if any(self.ssh_pkeys)
+                else None
+            ),
         }
         _remove_none_values(credentials)
         template = os.linesep.join(
@@ -1683,9 +1695,11 @@ class SSHTunnelForwarder(object):
             credentials,
             self.ssh_host_key if self.ssh_host_key else "not checked",
             "" if self.is_alive else "not ",
-            "disabled"
-            if not self.set_keepalive
-            else "every {0} sec".format(self.set_keepalive),
+            (
+                "disabled"
+                if not self.set_keepalive
+                else "every {0} sec".format(self.set_keepalive)
+            ),
             "disabled" if self.skip_tunnel_checkup else "enabled",
             "" if self._threaded else "not ",
             "" if self.compression else "not ",
