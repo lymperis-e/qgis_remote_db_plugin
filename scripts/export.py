@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
+
 import os
 import shutil
 import zipfile
@@ -193,9 +194,7 @@ def main():
         description="Creates a plugin release .zip, and copies the build over to the QGIS plugins folder."
     )
     parser.add_argument(
-        "--plugin-name",
-        default="remote_db",
-        help="Name of the plugin to release."
+        "--plugin-name", default="remote_db", help="Name of the plugin to release."
     )
     parser.add_argument(
         "--install-dev",
@@ -208,7 +207,7 @@ def main():
         help="Uninstall the plugin from the QGIS plugins folder for development purposes.",
     )
     args = parser.parse_args()
-    
+
     if args.uninstall_dev:
         qgis_plugins_dir = os.path.join(
             get_qgis_plugins_dir(),
@@ -220,8 +219,7 @@ def main():
         else:
             print(f"Plugin not found at {qgis_plugins_dir}. Nothing to uninstall.")
         return
-    
-        
+
     plugin_name = args.plugin_name
     script_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = os.path.dirname(script_dir)
@@ -245,7 +243,7 @@ def main():
     print(f"Copying files from {src_dir} to {dest_dir}...")
 
     create_release(plugin_name, src_dir, dest_dir, exclude_list)
-    print(F"Release created successfully at {dest_dir}.")
+    print(f"Release created successfully at {dest_dir}.")
 
     # Copy the release to the QGIS plugins folder, if requested
     if args.install_dev:
@@ -257,7 +255,6 @@ def main():
 
         print("Files copied successfully.")
         print(f"Plugin installed successfully at {qgis_plugins_dir}.")
-
 
     # Clear & remove the release directory
     clear_directory(dest_dir)
