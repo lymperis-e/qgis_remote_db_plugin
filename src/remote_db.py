@@ -193,6 +193,15 @@ class RemoteDB:
         # remove the toolbar
         del self.toolbar
 
+        # Close all connections
+        for conn in self.connectionManager.available_connections:
+            if conn.is_connected:
+                conn.disconnect()
+
+        # Delete the connection manager
+        self.connectionManager._unload()
+        del self.connectionManager
+
     # --------------------------------------------------------------------------
 
     def run(self):

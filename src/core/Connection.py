@@ -1,5 +1,6 @@
 import ipaddress
 import re
+import logging
 from .dependencies import check
 
 DEPENDENCIES_EXIST = False
@@ -16,7 +17,9 @@ except Exception as e:
         DEPENDENCIES_EXIST = True
 
 from dataclasses import dataclass
-from typing import Optional
+
+# from .utils.timeout import timeout
+from .utils.logger import PLUGIN_LOGGER
 
 
 @dataclass
@@ -63,6 +66,8 @@ class Connection:
         self.remote_port = connection_params.get("remote_port", 22)
         self.local_port = connection_params.get("local_port", 0)
 
+        self.logger = PLUGIN_LOGGER
+
         self._server = self._get_server()
         self.is_connected = False
 
@@ -100,6 +105,7 @@ class Connection:
             remote_bind_address=(self.remote_bind_address, self.remote_port),
             local_bind_address=("0.0.0.0", self.local_port),
             ssh_port=self.ssh_port,
+            logger=self.logger,
         )
         return tunnel_server
 
@@ -108,10 +114,19 @@ class Connection:
             try:
                 self._server.start()
                 self.is_connected = True
-
             except Exception as e:
                 self.is_connected = False
+
+                # Delete server instance to avoid memory leaks and recreate it
+                self._server.stop()
+                # del self._server
+                self._server = None
+                self._server = self._get_server()
+
                 print(e)
+                print(self._server)
+        else:
+            raise ValueError("Server is not properly configured.")
 
     def disconnect(self):
         if self._server:

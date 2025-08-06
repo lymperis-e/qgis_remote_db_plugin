@@ -1,6 +1,6 @@
 """
 This component was largely copied from [Quick Map Services](https://plugins.qgis.org/plugins/quick_map_services),
-specifically from the file *qms_service_toolbox.py*. Kudos to the developers of QMS! 
+specifically from the file *qms_service_toolbox.py*. Kudos to the developers of QMS!
 
 Re-used under GNU GENERAL PUBLIC LICENSE v.2
 
@@ -26,16 +26,17 @@ from qgis.core import (
 )
 
 from .EditConnectionDialog import EditConnectionDialog
+from .Connection import Connection
 
 
 class ConnectionListItem(QWidget):
     connectionDeleted = pyqtSignal()
     connectionEdited = pyqtSignal()
 
-    def __init__(self, connection, connectionManager, parent=None):
+    def __init__(self, connection: Connection, connectionManager, parent=None):
         QWidget.__init__(self, parent)
 
-        self.connection = connection
+        self.connection: Connection = connection
         self.connectionManager = connectionManager
 
         # QLayout

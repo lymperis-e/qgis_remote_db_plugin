@@ -225,7 +225,11 @@ def create_logger(
     Return:
         :class:`logging.Logger`
     """
-    logger = logger or logging.getLogger("sshtunnel.SSHTunnelForwarder")
+    logger = (
+        logger
+        or logging.getLogger("sshtunnel.SSHTunnelForwarder")
+        or logging.getLogger("sshtunnel")
+    )
     if not any(isinstance(x, logging.Handler) for x in logger.handlers):
         logger.setLevel(loglevel or DEFAULT_LOGLEVEL)
         console_handler = logging.StreamHandler()
