@@ -46,25 +46,22 @@ To set up a connection with the `remote_db` plugin in QGIS:
 
 ## Advanced usage
 
-For advanced users, it is possible to edit your *connections.json* file directly. Click the button **'Open Settings Folder'** from the top of the plugin panel. A new window
-will open within the settings folder. Open *connections.json* with your prefered text editor and add your connection/s parameters manually. Available parameters are:
+For advanced users, it is possible to edit your _connections.json_ file directly. Click the button **'Open Settings Folder'** from the top of the plugin panel. A new window
+will open within the settings folder. Open _connections.json_ with your prefered text editor and add your connection/s parameters manually. Available parameters are:
 
-
-| Parameter               | Description                                                                                      |
-|-------------------------|--------------------------------------------------------------------------------------------------|
-| `name`                  | Name of the connection, displayed in the list                                                     |
-| `host`                  | IP or domain name of the remote host                                                               |
-| `ssh_port`              | Port listening for SSH                                                                            |
-| `username`              | Username on the remote host                                                                       |
-| `password` (optional)   | Password for the username on the remote host (optional)                                            |
-| `id_file` (optional)    | SSH identity file (optional)                                                                     |
-| `pkey_password` (optional) | Passphrase for the SSH identity file (optional)                                                  |
-| `ssh_proxy` (optional)  | Proxy server to use for connecting to the remote host (optional)                                   |
-| `ssh_proxy_enabled` (optional) | Use the proxy server (optional)                                                              |
-| `remote_port`           | Port on the remote host to forward to localhost                                                  |
-| `local_port`            | Local port to expose the remote service on                                                         |
-
-
+| Parameter                      | Description                                                      |
+| ------------------------------ | ---------------------------------------------------------------- |
+| `name`                         | Name of the connection, displayed in the list                    |
+| `host`                         | IP or domain name of the remote host                             |
+| `ssh_port`                     | Port listening for SSH                                           |
+| `username`                     | Username on the remote host                                      |
+| `password` (optional)          | Password for the username on the remote host (optional)          |
+| `id_file` (optional)           | SSH identity file (optional)                                     |
+| `pkey_password` (optional)     | Passphrase for the SSH identity file (optional)                  |
+| `ssh_proxy` (optional)         | Proxy server to use for connecting to the remote host (optional) |
+| `ssh_proxy_enabled` (optional) | Use the proxy server (optional)                                  |
+| `remote_port`                  | Port on the remote host to forward to localhost                  |
+| `local_port`                   | Local port to expose the remote service on                       |
 
 ## Requirements
 
@@ -77,3 +74,18 @@ This is a new plugin. Although it has been tested in several machines, it is sti
 
 Suggestions & pull requests are more than welcome.
 
+## Development
+
+### Using `scripts/export.py`:
+
+You can create a release _.zip_ file with the plugin's code, ready to be installed in QGIS, by running:
+
+```bash
+python scripts/export.py
+```
+
+You can create a release and install in your QGIS by running:
+
+```bash
+python scripts/export.py --install-dev
+```

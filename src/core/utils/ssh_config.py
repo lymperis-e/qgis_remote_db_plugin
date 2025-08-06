@@ -1,7 +1,7 @@
 import os
 
 from ..Connection import IConnection, Connection
-from ..install_packages.check_dependencies import check
+from ..dependencies import check
 
 
 DEPENDENCIES_EXIST = False

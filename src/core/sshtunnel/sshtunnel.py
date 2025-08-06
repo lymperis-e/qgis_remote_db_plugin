@@ -1134,7 +1134,9 @@ class SSHTunnelForwarder(object):
 
         paramiko_key_types = {
             "rsa": paramiko.RSAKey,
-            "dsa": paramiko.DSSKey,
+            # "dsa": paramiko.DSSKey, 
+            # Removed in paramiko 4.0.0, see [issue](https://github.com/lymperis-e/qgis_remote_db_plugin/issues/10),
+            # and relevant [changelog](https://www.paramiko.org/changelog.html#v4-0-0)
             "ecdsa": paramiko.ECDSAKey,
         }
         if hasattr(paramiko, "Ed25519Key"):

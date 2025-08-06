@@ -1,6 +1,6 @@
 import ipaddress
 import re
-from .install_packages.check_dependencies import check
+from .dependencies import check
 
 DEPENDENCIES_EXIST = False
 try:
