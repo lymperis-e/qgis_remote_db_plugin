@@ -14,7 +14,11 @@ def find_pip_executable():
         candidate_filenames = [f"{filename}.exe" for filename in candidate_filenames]
 
     # Determine the pip directory based on the current Python environment
-    pip_dir = os.path.join(sys.prefix, "Scripts") if sys.platform == "win32" else os.path.join(sys.prefix, "bin")
+    pip_dir = (
+        os.path.join(sys.prefix, "Scripts")
+        if sys.platform == "win32"
+        else os.path.join(sys.prefix, "bin")
+    )
 
     # Check each candidate filename
     tried: List[str] = []
@@ -22,10 +26,13 @@ def find_pip_executable():
         path = os.path.join(pip_dir, filename)
         if os.path.isfile(path):
             return path
-        
+
         tried.append(path)
-        
-    raise FileNotFoundError("pip executable not found in the current Python environment. Tried: \n" + ", \n".join(tried))
+
+    raise FileNotFoundError(
+        "pip executable not found in the current Python environment. Tried: \n"
+        + ", \n".join(tried)
+    )
 
 
 def check(required_packages):
@@ -63,7 +70,7 @@ def check(required_packages):
                     [pip_path, "install", package],
                     capture_output=True,
                     text=True,
-                    check=True
+                    check=True,
                 )
                 print(f"Successfully installed {package}")
                 print(result.stdout)

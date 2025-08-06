@@ -264,13 +264,17 @@ class EditConnectionDialog(QDialog):
             "username": self.username_field.text(),
             "password": self.get_text_or_none(self.password_field),
             "id_file": self.get_path_or_none(self.id_file_field),
-            "pkey_password": self.get_text_or_none(self.pkey_password_field)
-            if self.use_id_file.isChecked()
-            and self.id_file_field.filePath() is not None
-            else None,
-            "ssh_proxy": self.get_text_or_none(self.ssh_proxy_field)
-            if self.ssh_proxy_enabled_field.isChecked()
-            else None,
+            "pkey_password": (
+                self.get_text_or_none(self.pkey_password_field)
+                if self.use_id_file.isChecked()
+                and self.id_file_field.filePath() is not None
+                else None
+            ),
+            "ssh_proxy": (
+                self.get_text_or_none(self.ssh_proxy_field)
+                if self.ssh_proxy_enabled_field.isChecked()
+                else None
+            ),
             "ssh_proxy_enabled": self.get_checked_or_none(self.ssh_proxy_enabled_field),
         }
         return connection_info

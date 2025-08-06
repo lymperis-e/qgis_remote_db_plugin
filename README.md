@@ -89,3 +89,9 @@ You can create a release and install in your QGIS by running:
 ```bash
 python scripts/export.py --install-dev
 ```
+
+### Format all py files with `black`:
+
+```bash
+python -m black src
+```
