@@ -1,4 +1,5 @@
 import sys
+import time
 import types
 from pathlib import Path
 
@@ -7,6 +8,7 @@ class StubForwarder:
     """Simple forwarder test double used by Connection tests."""
 
     fail_next_start = False
+    start_delay_seconds = 0
     instances = []
 
     def __init__(self, *args, **kwargs):
@@ -17,6 +19,9 @@ class StubForwarder:
         StubForwarder.instances.append(self)
 
     def start(self):
+        if StubForwarder.start_delay_seconds > 0:
+            time.sleep(StubForwarder.start_delay_seconds)
+
         if StubForwarder.fail_next_start:
             StubForwarder.fail_next_start = False
             raise RuntimeError("start failed")
@@ -28,6 +33,7 @@ class StubForwarder:
     @classmethod
     def reset(cls):
         cls.fail_next_start = False
+        cls.start_delay_seconds = 0
         cls.instances = []
 
 

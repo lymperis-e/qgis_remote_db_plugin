@@ -111,23 +111,22 @@ class Connection:
         return tunnel_server
 
     def connect(self):
-        if self._server:
-            try:
-                self._server.start()
-                self.is_connected = True
-            except Exception as e:
-                self.is_connected = False
-
-                # Delete server instance to avoid memory leaks and recreate it
-                self._server.stop()
-                # del self._server
-                self._server = None
-                self._server = self._get_server()
-
-                print(e)
-                print(self._server)
-        else:
+        if not self._server:
             raise ValueError("Server is not properly configured.")
+
+        server = self._server
+
+        try:
+            server.start()
+            self.is_connected = True
+        except Exception:
+            self.is_connected = False
+
+            # start() returned with an error, so stop() should be safe.
+            server.stop()
+            self._server = None
+            self._server = self._get_server()
+            raise
 
     def disconnect(self):
         if self._server:
