@@ -269,7 +269,6 @@ class ConnectionListItem(QWidget):
         action2.setEnabled(
             not self.connection.is_connected
         )  # disable deletion while connected
-
         menu.addAction(action1)
         menu.addAction(action2)
 
