@@ -9,7 +9,7 @@ try:
     DEPENDENCIES_EXIST = True
 except Exception:
     try:
-        check(["paramiko", "sshconf"])
+        check([("paramiko", "==3.3.1"), ("pyopenssl", "==23.3.0"), "sshconf"])
     finally:
         from .sshtunnel.sshtunnel import SSHTunnelForwarder
 
