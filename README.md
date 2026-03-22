@@ -2,7 +2,7 @@
 
 [![CodeQL](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml) [![Code Style](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml)
 
-![Plugin logo](img/logo.png)
+![Plugin logo](img/logo_50.png)
 
 The Remote DB plugin for QGIS allows users to establish SSH tunnels to remote database servers, which can then be used for querying or other database operations within QGIS.
 

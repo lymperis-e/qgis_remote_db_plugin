@@ -49,15 +49,33 @@ def get_plugin_logger(name="qgis.remote_db_plugin", level=logging.DEBUG):
 PLUGIN_LOGGER = get_plugin_logger("qgis.remote_db_plugin", level=logging.INFO)
 
 
-class _PrefixAdapter(logging.LoggerAdapter):
-    """Wraps a logger and prepends a fixed string to every message."""
+class _MessagePrefixFilter(logging.Filter):
+    """Prepends a fixed prefix to every log record message."""
 
-    def __init__(self, logger, prefix):
-        super().__init__(logger, {})
+    def __init__(self, prefix):
+        super().__init__()
         self._prefix = prefix
 
-    def process(self, msg, kwargs):
-        return f"{self._prefix} {msg}", kwargs
+    def filter(self, record):
+        record.msg = f"{self._prefix} {record.getMessage()}"
+        record.args = ()
+        return True
 
 
-SSHTUNNEL_LOGGER = _PrefixAdapter(PLUGIN_LOGGER, "[sshtunnel.py]")
+def get_sshtunnel_logger(base_logger):
+    """Return a concrete logger compatible with sshtunnel internals."""
+    logger = logging.getLogger("qgis.remote_db_plugin.sshtunnel")
+    logger.setLevel(base_logger.level)
+    logger.propagate = False
+
+    if not logger.handlers:
+        for handler in base_logger.handlers:
+            logger.addHandler(handler)
+
+    if not any(isinstance(f, _MessagePrefixFilter) for f in logger.filters):
+        logger.addFilter(_MessagePrefixFilter("[sshtunnel.py]"))
+
+    return logger
+
+
+SSHTUNNEL_LOGGER = get_sshtunnel_logger(PLUGIN_LOGGER)
