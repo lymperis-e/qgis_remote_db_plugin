@@ -18,7 +18,7 @@ except Exception:
 from dataclasses import dataclass
 
 # from .utils.timeout import timeout
-from .utils.logger import PLUGIN_LOGGER
+from .utils.logger import PLUGIN_LOGGER, SSHTUNNEL_LOGGER
 
 LOCAL_BIND_ADDR = "127.0.0.1"  # "0.0.0.0"
 
@@ -67,7 +67,7 @@ class Connection:
         self.remote_port = connection_params.get("remote_port", 22)
         self.local_port = connection_params.get("local_port", 0)
 
-        self.logger = PLUGIN_LOGGER
+        self.logger = SSHTUNNEL_LOGGER
 
         self._server = self._get_server()
         self.is_connected = False
