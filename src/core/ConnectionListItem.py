@@ -288,6 +288,13 @@ class ConnectionListItem(QWidget):
             self.connectionManager.remove_connection(self.connection)
             self.connectionDeleted.emit()
 
+    def shutdown(self):
+        """Stop any in-flight operation and disconnect synchronously.
+
+        Call this before the plugin closes or unloads.
+        """
+        self.operation_runner.shutdown()
+
     def edit_connection_dialog(self):
         dialog = EditConnectionDialog(self.connection.parameters)
         result = dialog.exec_()

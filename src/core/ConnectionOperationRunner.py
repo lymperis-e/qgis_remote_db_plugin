@@ -140,3 +140,22 @@ class ConnectionOperationRunner(QObject):
             False,
             f"Connection establishment timed out after {CONNECT_TIMEOUT_SECONDS} seconds",
         )
+
+    def shutdown(self):
+        """Stop the watchdog, invalidate any in-flight operation, and disconnect synchronously.
+
+        Safe to call from the main thread during plugin close/unload.
+        """
+        self._watchdog.stop()
+
+        # Advance the operation ID so any running thread's _emit_result call
+        # will find a stale ID and silently bail out.
+        with self._state_lock:
+            self._active_operation = None
+            self._active_operation_id += 1
+
+        try:
+            if self.connection.is_connected:
+                self.connection.disconnect()
+        except Exception:
+            pass
