@@ -2,7 +2,8 @@ name: Publish Plugin
 
 on:
   push:
-    branches: ["main"]
+    tags:
+      - "**"
 
 jobs:
   build:
@@ -10,6 +11,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag commit is on main
+        run: |
+          git fetch origin main
+          git branch -r --contains "$GITHUB_SHA" | grep -Eq 'origin/main$'
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
