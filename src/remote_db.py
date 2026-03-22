@@ -34,6 +34,7 @@ from .core.ConnectionListItem import ConnectionListItem
 from .core.AddConnectionDialog import AddConnectionDialog
 
 from .core.utils.ssh_config import load_from_ssh_config
+from .core.utils.logger import PLUGIN_LOGGER
 
 
 class RemoteDB:
@@ -283,7 +284,7 @@ class RemoteDB:
             notify_user.exec_()
         # Invalid port
         except ValueError as e:
-            print(e)
+            PLUGIN_LOGGER.warning(str(e))
             notify_user = QMessageBox(self.dockwidget)
             notify_user.setText(str(e))
             notify_user.exec_()
@@ -314,7 +315,7 @@ class RemoteDB:
                 notify_user.exec_()
             # Invalid port
             except ValueError as e:
-                print(e)
+                PLUGIN_LOGGER.warning(str(e))
                 notify_user = QMessageBox(self.dockwidget)
                 notify_user.setText(str(e))
                 notify_user.exec_()

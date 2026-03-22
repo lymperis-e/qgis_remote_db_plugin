@@ -23,6 +23,7 @@ from qgis.PyQt.QtCore import Qt, pyqtSignal
 from .EditConnectionDialog import EditConnectionDialog
 from .Connection import Connection
 from .ConnectionOperationRunner import ConnectionOperationRunner
+from .utils.logger import PLUGIN_LOGGER
 
 
 class ConnectionListItem(QWidget):
@@ -143,7 +144,7 @@ class ConnectionListItem(QWidget):
                 self._set_button_state("disconnect")
                 return
 
-            print(error_message)
+            PLUGIN_LOGGER.warning(error_message)
             if "timed out" in (error_message or "").lower():
                 self.report_status(
                     "timed_out",
@@ -166,7 +167,7 @@ class ConnectionListItem(QWidget):
                 self._set_button_state("connect")
                 return
 
-            print(error_message)
+            PLUGIN_LOGGER.warning(error_message)
             self.report_status(
                 "error",
                 f"> Disconnection failed: {error_message or 'See Python Console for details'}",

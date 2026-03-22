@@ -1,6 +1,7 @@
 import threading
 
 from qgis.PyQt.QtCore import QObject, QTimer, pyqtSignal
+from .utils.logger import PLUGIN_LOGGER
 
 CONNECT_TIMEOUT_SECONDS = 10
 
@@ -157,5 +158,5 @@ class ConnectionOperationRunner(QObject):
         try:
             if self.connection.is_connected:
                 self.connection.disconnect()
-        except Exception:
-            pass
+        except Exception as exc:
+            PLUGIN_LOGGER.warning(f"Error during shutdown disconnect: {exc}")

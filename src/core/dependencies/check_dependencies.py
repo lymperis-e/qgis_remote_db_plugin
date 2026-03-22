@@ -2,6 +2,7 @@ from typing import List, Optional, Tuple, Union
 import os
 import sys
 import importlib
+from ..utils.logger import PLUGIN_LOGGER
 from qgis.PyQt.QtWidgets import QMessageBox
 import subprocess
 
@@ -199,15 +200,16 @@ def check(required_packages: List[Requirement]):
             # Use subprocess to capture output
             try:
                 pip_path = find_pip_executable()
-                print(f"Installing {pip_requirement} using {pip_path}...")
+                PLUGIN_LOGGER.info(f"Installing {pip_requirement} using {pip_path}...")
                 result = subprocess.run(
                     [pip_path, "install", pip_requirement],
                     capture_output=True,
                     text=True,
                     check=True,
                 )
-                print(f"Successfully installed {pip_requirement}")
-                print(result.stdout)
+                PLUGIN_LOGGER.info(f"Successfully installed {pip_requirement}")
+                if result.stdout:
+                    PLUGIN_LOGGER.debug(result.stdout)
             except subprocess.CalledProcessError as e:
-                print(f"Failed to install {pip_requirement}")
-                print(e.stderr)
+                PLUGIN_LOGGER.error(f"Failed to install {pip_requirement}")
+                PLUGIN_LOGGER.error(e.stderr)
