@@ -34,6 +34,7 @@ from .core.ConnectionListItem import ConnectionListItem
 from .core.AddConnectionDialog import AddConnectionDialog
 
 from .core.utils.ssh_config import load_from_ssh_config
+from .core.utils.logger import PLUGIN_LOGGER
 
 
 class RemoteDB:
@@ -177,10 +178,7 @@ class RemoteDB:
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
 
-        # Discnonect all active connections on plugin close
-        for conn in self.connectionManager.available_connections:
-            if conn.is_connected:
-                conn.disconnect()
+        self._shutdown_all_connections()
 
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
         self.pluginIsActive = False
@@ -193,14 +191,22 @@ class RemoteDB:
         # remove the toolbar
         del self.toolbar
 
-        # Close all connections
-        for conn in self.connectionManager.available_connections:
-            if conn.is_connected:
-                conn.disconnect()
+        self._shutdown_all_connections()
 
         # Delete the connection manager
         self.connectionManager._unload()
         del self.connectionManager
+
+    def _shutdown_all_connections(self):
+        """Stop all ConnectionOperationRunner instances and close any open tunnels."""
+        if self.dockwidget is None:
+            return
+
+        list_widget = self.dockwidget.conn_list_widget
+        for i in range(list_widget.count()):
+            widget = list_widget.itemWidget(list_widget.item(i))
+            if isinstance(widget, ConnectionListItem):
+                widget.shutdown()
 
     # --------------------------------------------------------------------------
 
@@ -278,7 +284,7 @@ class RemoteDB:
             notify_user.exec_()
         # Invalid port
         except ValueError as e:
-            print(e)
+            PLUGIN_LOGGER.warning(str(e))
             notify_user = QMessageBox(self.dockwidget)
             notify_user.setText(str(e))
             notify_user.exec_()
@@ -309,7 +315,7 @@ class RemoteDB:
                 notify_user.exec_()
             # Invalid port
             except ValueError as e:
-                print(e)
+                PLUGIN_LOGGER.warning(str(e))
                 notify_user = QMessageBox(self.dockwidget)
                 notify_user.setText(str(e))
                 notify_user.exec_()

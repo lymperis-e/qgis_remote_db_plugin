@@ -6,8 +6,6 @@ Re-used under GNU GENERAL PUBLIC LICENSE v.2
 
 """
 
-import os
-
 from qgis.PyQt.QtWidgets import (
     QWidget,
     QHBoxLayout,
@@ -21,12 +19,11 @@ from qgis.PyQt.QtWidgets import (
     QDialog,
 )
 from qgis.PyQt.QtCore import Qt, pyqtSignal
-from qgis.core import (
-    QgsMessageLog,
-)
 
 from .EditConnectionDialog import EditConnectionDialog
 from .Connection import Connection
+from .ConnectionOperationRunner import ConnectionOperationRunner
+from .utils.logger import PLUGIN_LOGGER
 
 
 class ConnectionListItem(QWidget):
@@ -52,11 +49,6 @@ class ConnectionListItem(QWidget):
         self.status_label = QLabel(self)
         self.status_label.setTextFormat(Qt.RichText)
         self.status_label.setText("\u2022")
-
-        if self.connection.is_connected:
-            self.status_label.setStyleSheet("color: green; font-size: 30px")
-        else:
-            self.status_label.setStyleSheet("color: gray; font-size: 30px")
 
         self.layout.addWidget(self.status_label)
 
@@ -84,17 +76,28 @@ class ConnectionListItem(QWidget):
         self.service_type.setStyleSheet("color: blue; font-size: 10px")
         self.service_desc_layout.addWidget(self.service_type, 1, 0)
 
+        self.connection_status_text = QLabel(self)
+        self.connection_status_text.setTextFormat(Qt.RichText)
+        self.connection_status_text.setWordWrap(False)
+        self.connection_status_text.setStyleSheet(
+            "color: #6b7280; font-size: 10px; padding-left: 8px;"
+        )
+        self.connection_status_text.setText("Not connected")
+        self.service_desc_layout.addWidget(self.connection_status_text, 1, 1)
+
+        if self.connection.is_connected:
+            self.report_status("connected", "")
+        else:
+            self.report_status("disconnected", "")
+
         self.service_desc_layout.setColumnStretch(2, 1)
 
         # Connect Button
         self.connectButton = QToolButton()
         if self.connection.is_connected:
-            self.connectButton.setText(self.tr("Disconnect"))
-            self.connectButton.clicked.connect(self.disconnect)
-
+            self._set_button_state("disconnect")
         else:
-            self.connectButton.setText(self.tr("Connect"))
-            self.connectButton.clicked.connect(self.connect)
+            self._set_button_state("connect")
 
         self.layout.addWidget(self.connectButton)
 
@@ -103,41 +106,104 @@ class ConnectionListItem(QWidget):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showContextMenu)
 
-    def connect(self):
-        connection = self.connection
-        try:
-            connection.connect()
-
-            # Report status
-            self.report_status(
-                "connected",
-                f"> Tunnel opened. Forwarding remote service to local port {connection._server.local_bind_port}",
-            )
-
-            # Set the connect button action to disconnect
-            self.connectButton.setText("Disconnect")
-            self.connectButton.clicked.connect(self.disconnect)
-
-        except Exception as e:
-            print(e)
-            self.report_status(
-                "error",
-                "> An error occured. See Python Console for details",
-            )
-
-    def disconnect(self):
-        connection = self.connection
-
-        connection.disconnect()
-
-        # Report status
-        self.report_status(
-            "disconnected", f"> Connection {connection.name} disconnected"
+        self.operation_runner = ConnectionOperationRunner(self.connection, self)
+        self.operation_runner.operationFinished.connect(
+            self._on_connection_operation_finished
         )
 
-        # Set the connect button action to disconnect
-        self.connectButton.setText("Connect")
-        self.connectButton.clicked.connect(self.connect)
+    def connect(self):
+        if self.operation_runner.has_active_operation():
+            return
+
+        self.report_status("connecting", "")
+        self._set_button_state("connecting")
+        self.operation_runner.start_connect()
+
+    def disconnect(self):
+        if self.operation_runner.has_active_operation():
+            return
+
+        self.report_status("disconnecting", "")
+        self._set_button_state("disconnecting")
+        self.operation_runner.start_disconnect()
+
+    def _on_connection_operation_finished(self, operation, success, error_message):
+
+        if operation == "connect":
+            if success:
+                bind_port = self.connection.local_port
+                if self.connection._server and getattr(
+                    self.connection._server, "local_bind_port", None
+                ):
+                    bind_port = self.connection._server.local_bind_port
+
+                self.report_status(
+                    "connected",
+                    f"> Tunnel opened. Forwarding remote service to local port {bind_port}",
+                )
+                self._set_button_state("disconnect")
+                return
+
+            PLUGIN_LOGGER.warning(error_message)
+            if "timed out" in (error_message or "").lower():
+                self.report_status(
+                    "timed_out",
+                    f"> Connection timed out: {error_message}",
+                )
+            else:
+                self.report_status(
+                    "error",
+                    f"> Connection failed: {error_message or 'See Python Console for details'}",
+                )
+            self._set_button_state("connect")
+            return
+
+        if operation == "disconnect":
+            if success:
+                self.report_status(
+                    "disconnected",
+                    f"> Connection {self.connection.name} disconnected",
+                )
+                self._set_button_state("connect")
+                return
+
+            PLUGIN_LOGGER.warning(error_message)
+            self.report_status(
+                "error",
+                f"> Disconnection failed: {error_message or 'See Python Console for details'}",
+            )
+            if self.connection.is_connected:
+                self._set_button_state("disconnect")
+            else:
+                self._set_button_state("connect")
+
+    def _set_button_state(self, state):
+        try:
+            self.connectButton.clicked.disconnect()
+        except TypeError:
+            pass
+
+        if state == "connect":
+            self.connectButton.setEnabled(True)
+            self.connectButton.setText(self.tr("Connect"))
+            self.connectButton.clicked.connect(self.connect)
+            return
+
+        if state == "disconnect":
+            self.connectButton.setEnabled(True)
+            self.connectButton.setText(self.tr("Disconnect"))
+            self.connectButton.clicked.connect(self.disconnect)
+            return
+
+        if state == "connecting":
+            self.connectButton.setEnabled(False)
+            self.connectButton.setText(self.tr("Connecting..."))
+            return
+
+        if state == "disconnecting":
+            self.connectButton.setEnabled(False)
+            self.connectButton.setText(self.tr("Disconnecting..."))
+            return
 
     def report_status(self, status, message):
         """
@@ -145,22 +211,65 @@ class ConnectionListItem(QWidget):
         """
         if status == "connected":
             self.status_label.setStyleSheet("color: green; font-size: 30px")
+            self.connection_status_text.setStyleSheet(
+                "color: #166534; font-size: 10px; padding-left: 8px"
+            )
+            self.connection_status_text.setText("Connected")
+            return
+
+        if status == "connecting":
+            self.status_label.setStyleSheet("color: orange; font-size: 30px")
+            self.connection_status_text.setStyleSheet(
+                "color: #9a3412; font-size: 10px; padding-left: 8px"
+            )
+            self.connection_status_text.setText("Connecting...")
+            return
+
+        if status == "disconnecting":
+            self.status_label.setStyleSheet("color: orange; font-size: 30px")
+            self.connection_status_text.setStyleSheet(
+                "color: #9a3412; font-size: 10px; padding-left: 8px"
+            )
+            self.connection_status_text.setText("Disconnecting...")
+            return
 
         if status == "disconnected":
             self.status_label.setStyleSheet("color: gray; font-size: 30px")
+            self.connection_status_text.setStyleSheet(
+                "color: #6b7280; font-size: 10px; padding-left: 8px"
+            )
+            self.connection_status_text.setText("Not connected")
+            return
+
+        if status == "timed_out":
+            self.status_label.setStyleSheet("color: #f59e0b; font-size: 30px")
+            self.connection_status_text.setStyleSheet(
+                "color: #92400e; font-size: 10px; padding-left: 8px"
+            )
+            self.connection_status_text.setText("Timed out")
+            return
 
         if status == "error":
             self.status_label.setStyleSheet("color: red; font-size: 30px")
+            self.connection_status_text.setStyleSheet(
+                "color: #991b1b; font-size: 10px; padding-left: 8px"
+            )
+            self.connection_status_text.setText("Failed")
 
     def showContextMenu(self, point):
         menu = QMenu(self)
 
         action1 = QAction("Edit connection", self)
         action1.triggered.connect(self.edit_connection_dialog)
+        action1.setEnabled(
+            not self.connection.is_connected
+        )  # disable editing while connected
 
         action2 = QAction("Delete connection", self)
         action2.triggered.connect(self.delete_connection)
-
+        action2.setEnabled(
+            not self.connection.is_connected
+        )  # disable deletion while connected
         menu.addAction(action1)
         menu.addAction(action2)
 
@@ -179,6 +288,13 @@ class ConnectionListItem(QWidget):
         if reply == QMessageBox.Yes:
             self.connectionManager.remove_connection(self.connection)
             self.connectionDeleted.emit()
+
+    def shutdown(self):
+        """Stop any in-flight operation and disconnect synchronously.
+
+        Call this before the plugin closes or unloads.
+        """
+        self.operation_runner.shutdown()
 
     def edit_connection_dialog(self):
         dialog = EditConnectionDialog(self.connection.parameters)

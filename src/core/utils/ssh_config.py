@@ -1,6 +1,7 @@
 import os
 
-from ..Connection import IConnection, Connection
+from ..Connection import IConnection
+from .logger import PLUGIN_LOGGER
 from ..dependencies import check
 
 
@@ -9,7 +10,7 @@ try:
     from sshconf import read_ssh_config
 
     DEPENDENCIES_EXIST = True
-except Exception as e:
+except Exception:
     try:
         check(["paramiko", "sshconf"])
     finally:
@@ -60,9 +61,9 @@ def load_from_ssh_config():
     ssh_config = parse_ssh_config(config_file)
     params_array = convert_to_connection_params(ssh_config)
 
-    print(f"Found SSH config file at {config_file}")
-    print(ssh_config)
-    print(params_array)
+    PLUGIN_LOGGER.debug(f"Found SSH config file at {config_file}")
+    PLUGIN_LOGGER.debug(str(ssh_config))
+    PLUGIN_LOGGER.debug(str(params_array))
 
     return params_array
 

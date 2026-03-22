@@ -63,7 +63,8 @@ class TestConnection(unittest.TestCase):
         first_server = conn._server
         first_kwargs = dict(first_server.kwargs)
 
-        conn.connect()
+        with self.assertRaises(RuntimeError):
+            conn.connect()
 
         self.assertFalse(conn.is_connected)
         self.assertTrue(first_server.stopped)

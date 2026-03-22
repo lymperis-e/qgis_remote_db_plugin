@@ -18,7 +18,7 @@ except Exception:
 from dataclasses import dataclass
 
 # from .utils.timeout import timeout
-from .utils.logger import PLUGIN_LOGGER
+from .utils.logger import PLUGIN_LOGGER, SSHTUNNEL_LOGGER
 
 LOCAL_BIND_ADDR = "127.0.0.1"  # "0.0.0.0"
 
@@ -67,7 +67,7 @@ class Connection:
         self.remote_port = connection_params.get("remote_port", 22)
         self.local_port = connection_params.get("local_port", 0)
 
-        self.logger = PLUGIN_LOGGER
+        self.logger = SSHTUNNEL_LOGGER
 
         self._server = self._get_server()
         self.is_connected = False
@@ -111,23 +111,22 @@ class Connection:
         return tunnel_server
 
     def connect(self):
-        if self._server:
-            try:
-                self._server.start()
-                self.is_connected = True
-            except Exception as e:
-                self.is_connected = False
-
-                # Delete server instance to avoid memory leaks and recreate it
-                self._server.stop()
-                # del self._server
-                self._server = None
-                self._server = self._get_server()
-
-                print(e)
-                print(self._server)
-        else:
+        if not self._server:
             raise ValueError("Server is not properly configured.")
+
+        server = self._server
+
+        try:
+            server.start()
+            self.is_connected = True
+        except Exception:
+            self.is_connected = False
+
+            # start() returned with an error, so stop() should be safe.
+            server.stop()
+            self._server = None
+            self._server = self._get_server()
+            raise
 
     def disconnect(self):
         if self._server:
