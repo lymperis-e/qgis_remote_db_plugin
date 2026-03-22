@@ -947,7 +947,7 @@ class SSHTunnelForwarder(object):
         allow_agent=True,  # look for keys from an SSH agent
         host_pkey_directories=None,  # look for keys in ~/.ssh
         *args,
-        **kwargs  # for backwards compatibility
+        **kwargs,  # for backwards compatibility
     ):
         self.logger = logger or create_logger()
 
@@ -1509,7 +1509,9 @@ class SSHTunnelForwarder(object):
                 self.logger.debug("Authentication error")
                 self._stop_transport()
 
-        self.logger.error("Could not open connection to gateway")
+        self.logger.error(
+            f"Could not open connection to gateway {self.ssh_host}:{self.ssh_port}"
+        )
 
     def _serve_forever_wrapper(self, _srv, poll_interval=0.1):
         """
