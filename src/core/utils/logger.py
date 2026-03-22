@@ -2,6 +2,8 @@ import sys
 import logging
 from qgis.core import Qgis, QgsMessageLog
 
+PLUGIN_LOG_LABEL = "RemoteDB"
+
 
 class QGISLogHandler(logging.Handler):
     def emit(self, record):
@@ -13,12 +15,12 @@ class QGISLogHandler(logging.Handler):
                 if level >= logging.ERROR
                 else Qgis.Warning if level >= logging.WARNING else Qgis.Info
             )
-            QgsMessageLog.logMessage(msg, "YourPluginName", qgis_level)
+            QgsMessageLog.logMessage(msg, PLUGIN_LOG_LABEL, qgis_level)
         except Exception:
             self.handleError(record)
 
 
-def get_plugin_logger(name="qgis.your_plugin_name", level=logging.DEBUG):
+def get_plugin_logger(name="qgis.remote_db_plugin", level=logging.DEBUG):
     logger = logging.getLogger(name)
     if not logger.hasHandlers():
         logger.setLevel(level)
