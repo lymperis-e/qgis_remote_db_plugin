@@ -6,8 +6,6 @@ Re-used under GNU GENERAL PUBLIC LICENSE v.2
 
 """
 
-import os
-
 from qgis.PyQt.QtWidgets import (
     QWidget,
     QHBoxLayout,
@@ -19,11 +17,9 @@ from qgis.PyQt.QtWidgets import (
     QAction,
     QMessageBox,
     QDialog,
+    QApplication,
 )
 from qgis.PyQt.QtCore import Qt, pyqtSignal
-from qgis.core import (
-    QgsMessageLog,
-)
 
 from .EditConnectionDialog import EditConnectionDialog
 from .Connection import Connection
@@ -54,9 +50,9 @@ class ConnectionListItem(QWidget):
         self.status_label.setText("\u2022")
 
         if self.connection.is_connected:
-            self.status_label.setStyleSheet("color: green; font-size: 30px")
+            self.report_status("connected", "")
         else:
-            self.status_label.setStyleSheet("color: gray; font-size: 30px")
+            self.report_status("disconnected", "")
 
         self.layout.addWidget(self.status_label)
 
@@ -89,12 +85,9 @@ class ConnectionListItem(QWidget):
         # Connect Button
         self.connectButton = QToolButton()
         if self.connection.is_connected:
-            self.connectButton.setText(self.tr("Disconnect"))
-            self.connectButton.clicked.connect(self.disconnect)
-
+            self._set_button_state("disconnect")
         else:
-            self.connectButton.setText(self.tr("Connect"))
-            self.connectButton.clicked.connect(self.connect)
+            self._set_button_state("connect")
 
         self.layout.addWidget(self.connectButton)
 
@@ -105,6 +98,12 @@ class ConnectionListItem(QWidget):
 
     def connect(self):
         connection = self.connection
+
+        self.report_status("connecting", "")
+        self._set_button_state("connecting")
+        # Flush pending paint/events so the connecting state is visible before blocking I/O.
+        QApplication.processEvents()
+
         try:
             connection.connect()
 
@@ -115,8 +114,7 @@ class ConnectionListItem(QWidget):
             )
 
             # Set the connect button action to disconnect
-            self.connectButton.setText("Disconnect")
-            self.connectButton.clicked.connect(self.disconnect)
+            self._set_button_state("disconnect")
 
         except Exception as e:
             print(e)
@@ -124,9 +122,13 @@ class ConnectionListItem(QWidget):
                 "error",
                 "> An error occured. See Python Console for details",
             )
+            self._set_button_state("connect")
 
     def disconnect(self):
         connection = self.connection
+
+        self._set_button_state("connecting")
+        QApplication.processEvents()
 
         connection.disconnect()
 
@@ -136,8 +138,30 @@ class ConnectionListItem(QWidget):
         )
 
         # Set the connect button action to disconnect
-        self.connectButton.setText("Connect")
-        self.connectButton.clicked.connect(self.connect)
+        self._set_button_state("connect")
+
+    def _set_button_state(self, state):
+        try:
+            self.connectButton.clicked.disconnect()
+        except TypeError:
+            pass
+
+        if state == "connect":
+            self.connectButton.setEnabled(True)
+            self.connectButton.setText(self.tr("Connect"))
+            self.connectButton.clicked.connect(self.connect)
+            return
+
+        if state == "disconnect":
+            self.connectButton.setEnabled(True)
+            self.connectButton.setText(self.tr("Disconnect"))
+            self.connectButton.clicked.connect(self.disconnect)
+            return
+
+        if state == "connecting":
+            self.connectButton.setEnabled(False)
+            self.connectButton.setText(self.tr("Connecting..."))
+            return
 
     def report_status(self, status, message):
         """
@@ -145,6 +169,9 @@ class ConnectionListItem(QWidget):
         """
         if status == "connected":
             self.status_label.setStyleSheet("color: green; font-size: 30px")
+
+        if status == "connecting":
+            self.status_label.setStyleSheet("color: orange; font-size: 30px")
 
         if status == "disconnected":
             self.status_label.setStyleSheet("color: gray; font-size: 30px")
