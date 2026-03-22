@@ -1,75 +1,71 @@
 name: Publish Plugin
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - "**"
+    push:
+        branches:
+            - main
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
-  build-and-publish:
-    runs-on: ubuntu-latest
+    build-and-publish:
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Verify tag commit is on main
-        if: ${{ github.ref_type == 'tag' }}
-        run: |
-          git fetch origin main
-          git branch -r --contains "$GITHUB_SHA" | grep -Eq 'origin/main$'
+            - name: Set up Python 3.12
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+            - name: Extract version from metadata.txt
+              id: version
+              run: |
+                  VERSION=$(grep -m1 '^version=' src/metadata.txt | cut -d'=' -f2)
+                  echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Build release zip
-        run: python scripts/export.py
+            - name: Build release zip
+              run: python scripts/export.py
 
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: remote_db.zip
-          path: release/remote_db.zip
+            - name: Upload workflow artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: remote_db.zip
+                  path: release/remote_db.zip
 
-      - name: Publish GitHub release asset
-        if: ${{ github.ref_type == 'tag' }}
-        uses: softprops/action-gh-release@v2
-        with:
-          files: release/remote_db.zip
-          generate_release_notes: true
+            - name: Publish GitHub release asset
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: v${{ steps.version.outputs.version }}
+                  name: v${{ steps.version.outputs.version }}
+                  files: release/remote_db.zip
+                  generate_release_notes: true
 
-      - name: Upload plugin to QGIS plugin hub
-        if: ${{ github.ref_type == 'tag' }}
-        env:
-          OSGEO_USER: ${{ secrets.OSGEO_USER }}
-          OSGEO_PASSWORD: ${{ secrets.OSGEO_PASSWORD }}
-        run: |
-          python - <<'PY'
-          import base64
-          import os
-          import xmlrpc.client
+            - name: Upload plugin to QGIS plugin hub
+              env:
+                  OSGEO_USER: ${{ secrets.OSGEO_USER }}
+                  OSGEO_PASSWORD: ${{ secrets.OSGEO_PASSWORD }}
+              run: |
+                  python - <<'PY'
+                  import base64
+                  import os
+                  import xmlrpc.client
 
-          archive = "release/remote_db.zip"
-          username = os.environ["OSGEO_USER"]
-          password = os.environ["OSGEO_PASSWORD"]
-          auth = base64.b64encode(f"{username}:{password}".encode()).decode("utf-8")
-          server = xmlrpc.client.ServerProxy(
-              "https://plugins.qgis.org:443/plugins/RPC2/",
-              headers=[("Authorization", f"Basic {auth}")],
-          )
+                  archive = "release/remote_db.zip"
+                  username = os.environ["OSGEO_USER"]
+                  password = os.environ["OSGEO_PASSWORD"]
+                  auth = base64.b64encode(f"{username}:{password}".encode()).decode("utf-8")
+                  server = xmlrpc.client.ServerProxy(
+                      "https://plugins.qgis.org:443/plugins/RPC2/",
+                      headers=[("Authorization", f"Basic {auth}")],
+                  )
 
-          with open(archive, "rb") as handle:
-              plugin_id, version_id = server.plugin.upload(
-                  xmlrpc.client.Binary(handle.read())
-              )
+                  with open(archive, "rb") as handle:
+                      plugin_id, version_id = server.plugin.upload(
+                          xmlrpc.client.Binary(handle.read())
+                      )
 
-          print(f"Uploaded plugin_id={plugin_id} version_id={version_id}")
-          PY
+                  print(f"Uploaded plugin_id={plugin_id} version_id={version_id}")
+                  PY
