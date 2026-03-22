@@ -84,6 +84,12 @@ def create_release(plugin_name, src_dir, dest_dir, exclude_list):
     # Copy the files over to the release directory
     copy_files(src_dir, dest_dir, exclude_list)
 
+    # Ensure LICENSE is included (required by the QGIS plugin hub)
+    root_license = os.path.join(os.path.dirname(src_dir), "LICENSE")
+    dest_license = os.path.join(dest_dir, "LICENSE")
+    if os.path.isfile(root_license) and not os.path.isfile(dest_license):
+        shutil.copy2(root_license, dest_license)
+
     # Create the release zip file
     release_dir = os.path.dirname(dest_dir)
     zip_file = os.path.join(release_dir, f"{plugin_name}.zip")
