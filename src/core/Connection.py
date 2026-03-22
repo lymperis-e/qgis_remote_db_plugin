@@ -1,6 +1,5 @@
 import ipaddress
 import re
-import logging
 from .dependencies import check
 
 DEPENDENCIES_EXIST = False
@@ -8,7 +7,7 @@ try:
     from .sshtunnel.sshtunnel import SSHTunnelForwarder
 
     DEPENDENCIES_EXIST = True
-except Exception as e:
+except Exception:
     try:
         check(["paramiko", "sshconf"])
     finally:
@@ -20,6 +19,8 @@ from dataclasses import dataclass
 
 # from .utils.timeout import timeout
 from .utils.logger import PLUGIN_LOGGER
+
+LOCAL_BIND_ADDR = "127.0.0.1"  # "0.0.0.0"
 
 
 @dataclass
@@ -103,7 +104,7 @@ class Connection:
             ssh_proxy=self.ssh_proxy,
             ssh_proxy_enabled=self.ssh_proxy_enabled,
             remote_bind_address=(self.remote_bind_address, self.remote_port),
-            local_bind_address=("0.0.0.0", self.local_port),
+            local_bind_address=(LOCAL_BIND_ADDR, self.local_port),
             ssh_port=self.ssh_port,
             logger=self.logger,
         )

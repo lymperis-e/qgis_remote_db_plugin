@@ -93,5 +93,5 @@ python scripts/export.py --install-dev
 ### Format all py files with `black`:
 
 ```bash
-python -m black src
+python -m black .
 ```
