@@ -61,6 +61,7 @@ class TestConnection(unittest.TestCase):
         StubForwarder.fail_next_start = True
         conn = Connection(self._params())
         first_server = conn._server
+        first_kwargs = dict(first_server.kwargs)
 
         conn.connect()
 
@@ -68,6 +69,18 @@ class TestConnection(unittest.TestCase):
         self.assertTrue(first_server.stopped)
         self.assertIsNot(conn._server, first_server)
         self.assertEqual(len(StubForwarder.instances), 2)
+        self.assertEqual(first_kwargs, conn._server.kwargs)
+
+    def test_disconnect_is_idempotent(self):
+        conn = Connection(self._params())
+        conn.connect()
+        server = conn._server
+
+        conn.disconnect()
+        conn.disconnect()
+
+        self.assertFalse(conn.is_connected)
+        self.assertTrue(server.stopped)
 
     def test_disconnect_stops_server(self):
         conn = Connection(self._params())
@@ -78,6 +91,22 @@ class TestConnection(unittest.TestCase):
 
         self.assertFalse(conn.is_connected)
         self.assertTrue(server.stopped)
+
+    def test_endpoint_validation_boundaries_and_malformed_values(self):
+        conn = Connection(self._params())
+
+        # IPv4 boundaries should be accepted.
+        self.assertTrue(conn._validate_ip_or_domain("0.0.0.0"))
+        self.assertTrue(conn._validate_ip_or_domain("255.255.255.255"))
+
+        # Common malformed host values should be rejected.
+        self.assertFalse(conn._validate_ip_or_domain("999.1.1.1"))
+        self.assertFalse(conn._validate_ip_or_domain("host_name.com"))
+        self.assertFalse(conn._validate_ip_or_domain("example.com."))
+
+    def test_invalid_remote_bind_address_raises(self):
+        with self.assertRaises(ValueError):
+            Connection(self._params(remote_bind_address="bad bind"))
 
 
 if __name__ == "__main__":

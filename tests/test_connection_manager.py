@@ -119,6 +119,67 @@ class TestConnectionManager(unittest.TestCase):
         self.assertIsInstance(validated["local_port"], int)
         self.assertEqual(validated["host"], "127.0.0.1")
 
+    def test_load_connections_raises_for_corrupted_json(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = self._build_manager(temp_dir)
+
+            with open(manager.CONNECTIONS_FILE, "w", encoding="utf-8") as f:
+                f.write("{not-valid-json")
+
+            with self.assertRaises(json.JSONDecodeError):
+                manager.load_connections()
+
+    def test_load_connections_raises_for_missing_connections_key(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = self._build_manager(temp_dir)
+
+            with open(manager.CONNECTIONS_FILE, "w", encoding="utf-8") as f:
+                json.dump({"unexpected": []}, f)
+
+            with self.assertRaises(KeyError):
+                manager.load_connections()
+
+    def test_refresh_save_cycles_keep_unique_names_and_valid_json(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = self._build_manager(temp_dir)
+            manager.available_connections = [
+                FakeConnection(self._params(name="existing"))
+            ]
+
+            snapshots = [
+                [self._params(name="existing"), self._params(name="new_a")],
+                [
+                    self._params(name="existing"),
+                    self._params(name="new_a"),
+                    self._params(name="new_b"),
+                ],
+                [
+                    self._params(name="existing"),
+                    self._params(name="new_a"),
+                    self._params(name="new_b"),
+                ],
+            ]
+
+            for snapshot in snapshots:
+                with open(manager.CONNECTIONS_FILE, "w", encoding="utf-8") as f:
+                    json.dump({"connections": snapshot}, f)
+
+                with patch("src.core.ConnectionManager.Connection", FakeConnection):
+                    manager.refresh_connections()
+
+                manager.save_connections()
+
+            names = [conn.name for conn in manager.available_connections]
+            self.assertEqual(len(names), len(set(names)))
+            self.assertEqual(set(names), {"existing", "new_a", "new_b"})
+
+            with open(manager.CONNECTIONS_FILE, "r", encoding="utf-8") as f:
+                persisted = json.load(f)
+
+            persisted_names = [item["name"] for item in persisted["connections"]]
+            self.assertEqual(len(persisted_names), len(set(persisted_names)))
+            self.assertEqual(set(persisted_names), {"existing", "new_a", "new_b"})
+
 
 if __name__ == "__main__":
     unittest.main()

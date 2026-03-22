@@ -76,6 +76,16 @@ Suggestions & pull requests are more than welcome.
 
 ## Development
 
+## Tests
+
+Run the unit tests from the repository root:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Expected result: all tests pass with `OK`.
+
 ### Using `scripts/export.py`:
 
 You can create a release _.zip_ file with the plugin's code, ready to be installed in QGIS, by running:
