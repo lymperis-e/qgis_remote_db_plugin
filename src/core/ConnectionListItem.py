@@ -6,8 +6,6 @@ Re-used under GNU GENERAL PUBLIC LICENSE v.2
 
 """
 
-import threading
-
 from qgis.PyQt.QtWidgets import (
     QWidget,
     QHBoxLayout,
@@ -20,18 +18,16 @@ from qgis.PyQt.QtWidgets import (
     QMessageBox,
     QDialog,
 )
-from qgis.PyQt.QtCore import Qt, pyqtSignal, QTimer
+from qgis.PyQt.QtCore import Qt, pyqtSignal
 
 from .EditConnectionDialog import EditConnectionDialog
 from .Connection import Connection
-
-CONNECT_WORKER_TIMEOUT_SECONDS = 10
+from .ConnectionOperationRunner import ConnectionOperationRunner
 
 
 class ConnectionListItem(QWidget):
     connectionDeleted = pyqtSignal()
     connectionEdited = pyqtSignal()
-    connectionOperationFinished = pyqtSignal(str, bool, str, int)
 
     def __init__(self, connection: Connection, connectionManager, parent=None):
         QWidget.__init__(self, parent)
@@ -106,103 +102,29 @@ class ConnectionListItem(QWidget):
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showContextMenu)
-        self.connectionOperationFinished.connect(self._on_connection_operation_finished)
 
-        self._active_operation = None
-        self._active_operation_id = None
-        self._operation_counter = 0
-
-        self._connect_timeout_watchdog = QTimer(self)
-        self._connect_timeout_watchdog.setSingleShot(True)
-        self._connect_timeout_watchdog.timeout.connect(
-            self._on_connect_watchdog_timeout
+        self.operation_runner = ConnectionOperationRunner(self.connection, self)
+        self.operation_runner.operationFinished.connect(
+            self._on_connection_operation_finished
         )
 
     def connect(self):
-        if self._active_operation:
+        if self.operation_runner.has_active_operation():
             return
 
         self.report_status("connecting", "")
         self._set_button_state("connecting")
-        # Safety net: ensure UI leaves connecting state even if worker callback is delayed/lost.
-        self._connect_timeout_watchdog.start(
-            (CONNECT_WORKER_TIMEOUT_SECONDS + 1) * 1000
-        )
-        self._run_connection_operation("connect", self.connection.connect)
+        self.operation_runner.start_connect()
 
     def disconnect(self):
-        if self._active_operation:
+        if self.operation_runner.has_active_operation():
             return
 
-        self._connect_timeout_watchdog.stop()
         self.report_status("disconnecting", "")
         self._set_button_state("disconnecting")
-        self._run_connection_operation("disconnect", self.connection.disconnect)
+        self.operation_runner.start_disconnect()
 
-    def _run_connection_operation(self, operation, action):
-        self._active_operation = operation
-        self._operation_counter += 1
-        operation_id = self._operation_counter
-        self._active_operation_id = operation_id
-
-        def _worker():
-            try:
-                if operation == "connect":
-                    connect_error = {"exception": None}
-
-                    def _connect_target():
-                        try:
-                            action()
-                        except Exception as exc:
-                            connect_error["exception"] = exc
-
-                    connect_thread = threading.Thread(
-                        target=_connect_target, daemon=True
-                    )
-                    connect_thread.start()
-                    connect_thread.join(timeout=CONNECT_WORKER_TIMEOUT_SECONDS)
-
-                    if connect_thread.is_alive():
-                        # If connect eventually completes, ensure we do not keep a stale tunnel.
-                        def _cleanup_late_connect():
-                            connect_thread.join()
-                            try:
-                                if self.connection.is_connected:
-                                    self.connection.disconnect()
-                            except Exception:
-                                pass
-
-                        threading.Thread(
-                            target=_cleanup_late_connect, daemon=True
-                        ).start()
-
-                        raise TimeoutError(
-                            f"Connection establishment timed out after {CONNECT_WORKER_TIMEOUT_SECONDS} seconds"
-                        )
-
-                    if connect_error["exception"] is not None:
-                        raise connect_error["exception"]
-                else:
-                    action()
-
-                self.connectionOperationFinished.emit(operation, True, "", operation_id)
-            except Exception as exc:
-                self.connectionOperationFinished.emit(
-                    operation, False, str(exc), operation_id
-                )
-
-        threading.Thread(target=_worker, daemon=True).start()
-
-    def _on_connection_operation_finished(
-        self, operation, success, error_message, operation_id
-    ):
-        if operation_id != self._active_operation_id:
-            # Ignore stale completions from timed-out/replaced operations.
-            return
-
-        self._connect_timeout_watchdog.stop()
-        self._active_operation = None
-        self._active_operation_id = None
+    def _on_connection_operation_finished(self, operation, success, error_message):
 
         if operation == "connect":
             if success:
@@ -251,18 +173,6 @@ class ConnectionListItem(QWidget):
                 self._set_button_state("disconnect")
             else:
                 self._set_button_state("connect")
-
-    def _on_connect_watchdog_timeout(self):
-        if self._active_operation != "connect":
-            return
-
-        self._active_operation = None
-        self._active_operation_id = None
-        self.report_status(
-            "timed_out",
-            f"> Connection timed out after {CONNECT_WORKER_TIMEOUT_SECONDS} seconds",
-        )
-        self._set_button_state("connect")
 
     def _set_button_state(self, state):
         try:
