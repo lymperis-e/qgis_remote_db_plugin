@@ -78,7 +78,9 @@ class ConnectionListItem(QWidget):
         self.connection_status_text = QLabel(self)
         self.connection_status_text.setTextFormat(Qt.RichText)
         self.connection_status_text.setWordWrap(False)
-        self.connection_status_text.setStyleSheet("color: #6b7280; font-size: 10px")
+        self.connection_status_text.setStyleSheet(
+            "color: #6b7280; font-size: 10px; padding-left: 8px;"
+        )
         self.connection_status_text.setText("Not connected")
         self.service_desc_layout.addWidget(self.connection_status_text, 1, 1)
 
@@ -208,37 +210,49 @@ class ConnectionListItem(QWidget):
         """
         if status == "connected":
             self.status_label.setStyleSheet("color: green; font-size: 30px")
-            self.connection_status_text.setStyleSheet("color: #166534; font-size: 10px")
+            self.connection_status_text.setStyleSheet(
+                "color: #166534; font-size: 10px; padding-left: 8px"
+            )
             self.connection_status_text.setText("Connected")
             return
 
         if status == "connecting":
             self.status_label.setStyleSheet("color: orange; font-size: 30px")
-            self.connection_status_text.setStyleSheet("color: #9a3412; font-size: 10px")
+            self.connection_status_text.setStyleSheet(
+                "color: #9a3412; font-size: 10px; padding-left: 8px"
+            )
             self.connection_status_text.setText("Connecting...")
             return
 
         if status == "disconnecting":
             self.status_label.setStyleSheet("color: orange; font-size: 30px")
-            self.connection_status_text.setStyleSheet("color: #9a3412; font-size: 10px")
+            self.connection_status_text.setStyleSheet(
+                "color: #9a3412; font-size: 10px; padding-left: 8px"
+            )
             self.connection_status_text.setText("Disconnecting...")
             return
 
         if status == "disconnected":
             self.status_label.setStyleSheet("color: gray; font-size: 30px")
-            self.connection_status_text.setStyleSheet("color: #6b7280; font-size: 10px")
+            self.connection_status_text.setStyleSheet(
+                "color: #6b7280; font-size: 10px; padding-left: 8px"
+            )
             self.connection_status_text.setText("Not connected")
             return
 
         if status == "timed_out":
             self.status_label.setStyleSheet("color: #f59e0b; font-size: 30px")
-            self.connection_status_text.setStyleSheet("color: #92400e; font-size: 10px")
+            self.connection_status_text.setStyleSheet(
+                "color: #92400e; font-size: 10px; padding-left: 8px"
+            )
             self.connection_status_text.setText("Timed out")
             return
 
         if status == "error":
             self.status_label.setStyleSheet("color: red; font-size: 30px")
-            self.connection_status_text.setStyleSheet("color: #991b1b; font-size: 10px")
+            self.connection_status_text.setStyleSheet(
+                "color: #991b1b; font-size: 10px; padding-left: 8px"
+            )
             self.connection_status_text.setText("Failed")
 
     def showContextMenu(self, point):
@@ -246,9 +260,15 @@ class ConnectionListItem(QWidget):
 
         action1 = QAction("Edit connection", self)
         action1.triggered.connect(self.edit_connection_dialog)
+        action1.setEnabled(
+            not self.connection.is_connected
+        )  # disable editing while connected
 
         action2 = QAction("Delete connection", self)
         action2.triggered.connect(self.delete_connection)
+        action2.setEnabled(
+            not self.connection.is_connected
+        )  # disable deletion while connected
 
         menu.addAction(action1)
         menu.addAction(action2)
