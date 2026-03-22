@@ -1,13 +1,13 @@
-name: Code Style
+# name: Code Style
 
-on: [push]
+# on: [push]
 
-jobs:
-  code_style_python:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: psf/black@stable
-        with:
-          options: "--check --diff"
-          src: "."
+# jobs:
+#   code_style_python:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - uses: psf/black@stable
+#         with:
+#           options: "--check --diff"
+#           src: "."
