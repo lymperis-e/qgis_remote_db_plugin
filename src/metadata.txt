@@ -1,6 +1,7 @@
 [general]
 name=Remote DB Plugin
 qgisMinimumVersion=3.0
+qgisMaximumVersion=4.99
 description=Manage and open SSH connections to remote database servers
 version=1.3.0
 author=Lymperis Efstathios
