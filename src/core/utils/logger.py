@@ -11,9 +11,9 @@ class QGISLogHandler(logging.Handler):
             msg = self.format(record)
             level = record.levelno
             qgis_level = (
-                Qgis.Critical
+                Qgis.MessageLevel.Critical
                 if level >= logging.ERROR
-                else Qgis.Warning if level >= logging.WARNING else Qgis.Info
+                else Qgis.MessageLevel.Warning if level >= logging.WARNING else Qgis.MessageLevel.Info
             )
             QgsMessageLog.logMessage(msg, PLUGIN_LOG_LABEL, qgis_level)
         except Exception:
