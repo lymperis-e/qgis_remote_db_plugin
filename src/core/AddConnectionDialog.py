@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (
+from qgis.PyQt.QtWidgets import (
     QDialog,
     QFormLayout,
     QLabel,
@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QVBoxLayout,
 )
-from PyQt5.QtGui import QIntValidator, QColor
-from PyQt5.QtCore import Qt
+from qgis.PyQt.QtGui import QIntValidator, QColor
+from qgis.PyQt.QtCore import Qt
 from qgis.gui import QgsPasswordLineEdit, QgsFileWidget
 
 from .utils.QtValidators import HostValidator, PortValidator
@@ -23,7 +23,7 @@ class AddConnectionDialog(QDialog):
         self.form_layout = QFormLayout()
 
         self.security_notif_label = QLabel()
-        self.security_notif_label.setTextFormat(Qt.RichText)
+        self.security_notif_label.setTextFormat(Qt.TextFormat.RichText)
         self.security_notif_label.setWordWrap(True)
         self.security_notif_label.setText(
             "Warning: This information is stored in <strong>plain text</strong>"

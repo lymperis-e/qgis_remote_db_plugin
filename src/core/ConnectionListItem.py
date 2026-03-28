@@ -42,12 +42,12 @@ class ConnectionListItem(QWidget):
         self.setLayout(self.layout)
 
         self.service_icon = QLabel(self)
-        self.service_icon.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.service_icon.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.service_icon.resize(24, 24)
 
         # Status dot
         self.status_label = QLabel(self)
-        self.status_label.setTextFormat(Qt.RichText)
+        self.status_label.setTextFormat(Qt.TextFormat.RichText)
         self.status_label.setText("\u2022")
 
         self.layout.addWidget(self.status_label)
@@ -59,7 +59,7 @@ class ConnectionListItem(QWidget):
 
         # Name
         self.service_name = QLabel(self)
-        self.service_name.setTextFormat(Qt.RichText)
+        self.service_name.setTextFormat(Qt.TextFormat.RichText)
         self.service_name.setWordWrap(True)
         self.service_name.setText(
             f"   <strong> {connection.name} </strong> {connection.host}"
@@ -68,7 +68,7 @@ class ConnectionListItem(QWidget):
 
         # Info
         self.service_type = QLabel(self)
-        self.service_type.setTextFormat(Qt.RichText)
+        self.service_type.setTextFormat(Qt.TextFormat.RichText)
         self.service_type.setWordWrap(False)
         self.service_type.setText(
             f"   remote: {connection.remote_port}, local: {connection.local_port}"
@@ -77,7 +77,7 @@ class ConnectionListItem(QWidget):
         self.service_desc_layout.addWidget(self.service_type, 1, 0)
 
         self.connection_status_text = QLabel(self)
-        self.connection_status_text.setTextFormat(Qt.RichText)
+        self.connection_status_text.setTextFormat(Qt.TextFormat.RichText)
         self.connection_status_text.setWordWrap(False)
         self.connection_status_text.setStyleSheet(
             "color: #6b7280; font-size: 10px; padding-left: 8px;"
@@ -101,9 +101,9 @@ class ConnectionListItem(QWidget):
 
         self.layout.addWidget(self.connectButton)
 
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showContextMenu)
 
         self.operation_runner = ConnectionOperationRunner(self.connection, self)
@@ -273,19 +273,19 @@ class ConnectionListItem(QWidget):
         menu.addAction(action1)
         menu.addAction(action2)
 
-        menu.exec_(self.mapToGlobal(point))
+        menu.exec(self.mapToGlobal(point))
 
     def delete_connection(self):
         reply = QMessageBox.question(
             self,
             "Confirm Deletion",
             "Are you sure you want to delete the selected object?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
         # If the user clicked 'Yes', call the delObj() function
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             self.connectionManager.remove_connection(self.connection)
             self.connectionDeleted.emit()
 
@@ -298,8 +298,8 @@ class ConnectionListItem(QWidget):
 
     def edit_connection_dialog(self):
         dialog = EditConnectionDialog(self.connection.parameters)
-        result = dialog.exec_()
-        if result == QDialog.Accepted:
+        result = dialog.exec()
+        if result == QDialog.DialogCode.Accepted:
             connection_info = dialog.get_connection_info()
 
             try:
@@ -314,15 +314,15 @@ class ConnectionListItem(QWidget):
             except ReferenceError as e:
                 notify_user = QMessageBox(self)
                 notify_user.setText(str(e))
-                notify_user.exec_()
+                notify_user.exec()
 
             # Invalid port
             except ValueError as e:
                 notify_user = QMessageBox(self)
                 notify_user.setText(str(e))
-                notify_user.exec_()
+                notify_user.exec()
 
             except Exception as e:
                 error_message = QMessageBox(self)
                 error_message.setText(f"An error occurred: {str(e)}")
-                error_message.exec_()
+                error_message.exec()

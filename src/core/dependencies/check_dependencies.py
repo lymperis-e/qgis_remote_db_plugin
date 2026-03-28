@@ -189,11 +189,11 @@ def check(required_packages: List[Requirement]):
             None,
             "Missing Dependencies",
             message,
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
-        if reply == QMessageBox.No:
+        if reply == QMessageBox.StandardButton.No:
             return
 
         for pip_requirement, _display in missing_requirements:

@@ -233,7 +233,7 @@ class RemoteDB:
 
             self.populate_connections_list()
 
-            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
+            self.iface.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
     def populate_connections_list(self):
@@ -242,7 +242,7 @@ class RemoteDB:
         # If no connections exist, display a message
         if len(self.connectionManager.available_connections) == 0:
             custom_widget = QLabel()
-            custom_widget.setTextFormat(Qt.RichText)
+            custom_widget.setTextFormat(Qt.TextFormat.RichText)
             custom_widget.setText(
                 "   <strong> No connections. </strong> Add a new connection using the button above!"
             )
@@ -281,13 +281,13 @@ class RemoteDB:
         except ReferenceError as e:
             notify_user = QMessageBox(self.dockwidget)
             notify_user.setText(str(e))
-            notify_user.exec_()
+            notify_user.exec()
         # Invalid port
         except ValueError as e:
             PLUGIN_LOGGER.warning(str(e))
             notify_user = QMessageBox(self.dockwidget)
             notify_user.setText(str(e))
-            notify_user.exec_()
+            notify_user.exec()
 
         self.refresh_connections()
         # END TEST
@@ -298,8 +298,8 @@ class RemoteDB:
 
     def add_connection_dialog(self):
         dialog = AddConnectionDialog()
-        result = dialog.exec_()
-        if result == QDialog.Accepted:
+        result = dialog.exec()
+        if result == QDialog.DialogCode.Accepted:
             connection_info = dialog.get_connection_info()
 
             try:
@@ -312,13 +312,13 @@ class RemoteDB:
             except ReferenceError as e:
                 notify_user = QMessageBox(self.dockwidget)
                 notify_user.setText(str(e))
-                notify_user.exec_()
+                notify_user.exec()
             # Invalid port
             except ValueError as e:
                 PLUGIN_LOGGER.warning(str(e))
                 notify_user = QMessageBox(self.dockwidget)
                 notify_user.setText(str(e))
-                notify_user.exec_()
+                notify_user.exec()
 
     def open_settings_folder(self):
         QDesktopServices.openUrl(
