@@ -32,6 +32,7 @@ about=Manage and open <b>ssh</b> connections to remote database servers. This pl
     
 changelog=
     2.0.0:
+    - QGIS4/Qt6 is now supported.
     - Connections are now stored in a SQLite database (connections.db) instead of connections.json
     - Existing connections.json files are migrated automatically and kept as a backup in settings/.backups. The file is only moved once every connection has been safely stored
     - All backups are kept in settings/.backups, so the settings folder only contains the current settings
