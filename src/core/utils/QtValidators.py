@@ -1,5 +1,5 @@
 import re
-from PyQt5.QtGui import QValidator
+from qgis.PyQt.QtGui import QValidator
 
 
 class PortValidator(QValidator):
@@ -8,10 +8,10 @@ class PortValidator(QValidator):
         if input_text.isdigit():
             # Check if the input is in the range 1-65535
             if 1 <= int(input_text) <= 65535:
-                return (QValidator.Acceptable, input_text, pos)
-            return (QValidator.Intermediate, input_text, pos)
+                return (QValidator.State.Acceptable, input_text, pos)
+            return (QValidator.State.Intermediate, input_text, pos)
         else:
-            return (QValidator.Intermediate, input_text, pos)
+            return (QValidator.State.Intermediate, input_text, pos)
 
 
 class HostValidator(QValidator):
@@ -24,9 +24,9 @@ class HostValidator(QValidator):
             parts = input_text.split(".")
             for part in parts:
                 if not (0 <= int(part) <= 255):
-                    return (QValidator.Intermediate, input_text, pos)
-            return (QValidator.Acceptable, input_text, pos)
+                    return (QValidator.State.Intermediate, input_text, pos)
+            return (QValidator.State.Acceptable, input_text, pos)
         elif re.match(domain_pattern, input_text):
-            return (QValidator.Acceptable, input_text, pos)
+            return (QValidator.State.Acceptable, input_text, pos)
         else:
-            return (QValidator.Intermediate, input_text, pos)
+            return (QValidator.State.Intermediate, input_text, pos)

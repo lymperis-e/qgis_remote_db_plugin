@@ -26,7 +26,7 @@ class TestCheckDependencies(unittest.TestCase):
         ), patch.object(
             check_deps_module.QMessageBox,
             "question",
-            return_value=check_deps_module.QMessageBox.No,
+            return_value=check_deps_module.QMessageBox.StandardButton.No,
         ) as question_mock:
             check_deps_module.check([("paramiko", ">=2.12.0")])
 
@@ -40,7 +40,7 @@ class TestCheckDependencies(unittest.TestCase):
         ), patch.object(
             check_deps_module.QMessageBox,
             "question",
-            return_value=check_deps_module.QMessageBox.No,
+            return_value=check_deps_module.QMessageBox.StandardButton.No,
         ) as question_mock:
             check_deps_module.check([("paramiko", ">=2.12.0")])
 
@@ -52,7 +52,7 @@ class TestCheckDependencies(unittest.TestCase):
         ), patch.object(
             check_deps_module.QMessageBox,
             "question",
-            return_value=check_deps_module.QMessageBox.Yes,
+            return_value=check_deps_module.QMessageBox.StandardButton.Yes,
         ), patch.object(
             check_deps_module, "find_pip_executable", return_value="pip"
         ), patch.object(

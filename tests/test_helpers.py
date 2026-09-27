@@ -1,6 +1,7 @@
 import sys
 import time
 import types
+from enum import Flag
 from pathlib import Path
 
 
@@ -38,8 +39,9 @@ class StubForwarder:
 
 
 class DummyQMessageBox:
-    Yes = 1
-    No = 0
+    class StandardButton(Flag):
+        Yes = 1
+        No = 0
 
     @staticmethod
     def question(*args, **kwargs):
