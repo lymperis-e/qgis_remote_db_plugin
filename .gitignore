@@ -160,6 +160,10 @@ cython_debug/
 #.idea/
  
 connections.json
+connections.db*
+*.json.bk
+*.db.bk
+.backups/
 *.zip
 remote_db.zip
 

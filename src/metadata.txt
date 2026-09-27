@@ -2,7 +2,7 @@
 name=Remote DB Plugin
 qgisMinimumVersion=3.0
 description=Manage and open SSH connections to remote database servers
-version=1.3.0
+version=2.0.0
 author=Lymperis Efstathios
 email=geo.elymperis@gmail.com
 
@@ -23,13 +23,22 @@ about=Manage and open <b>ssh</b> connections to remote database servers. This pl
         
 
     It is recommended to choose a <b>different local</b> port for each connection, in order to be able to open many connections simultaneously. Also, ensure that each connection name is unique.
-    You can manage your connections via the UI, or you can use the button <b>Settings Folder</b> to open the plugin folder, where the settings live. There, you will find a <b>connections.json</b>, which you can edit or replace in bulk. This is where your connections are stored.
-    <b>Attention:</b> in connections.json, your credentials are stored in <b>PLAIN TEXT</b>. You 've been warned...
+    You can manage your connections via the UI, or you can use the button <b>Settings Folder</b> to open the plugin folder, where the settings live. There, you will find <b>connections.db</b>, a SQLite database where your connections are stored. A legacy <b>connections.json</b> is imported automatically and moved to <b>.backups/connections.old.json.bk</b>.
+    <b>Attention:</b> in connections.db (and any backup in .backups), your credentials are stored in <b>PLAIN TEXT</b>. You 've been warned...
 
     Depends on <a href="https://www.paramiko.org/">paramiko</a> and <a href="https://pypi.org/project/sshtunnel/">sshtunnel</a>. The latter, developed by <a href="https://github.com/pahaz">Pavel White</a> has been hard-coded into the plugin to simplify the installation process. Its own dependencies though have to be installed when installing the plugin. You will be automatically prompted to install them.
 
     
-changelog='Fix host field validation. Allow different remote bind address (other than 127.0.0.1)'
+changelog=
+    2.0.0:
+    - Connections are now stored in a SQLite database (connections.db) instead of connections.json
+    - Existing connections.json files are migrated automatically and kept as a backup in settings/.backups. The file is only moved once every connection has been safely stored
+    - All backups are kept in settings/.backups, so the settings folder only contains the current settings
+    - Bulk import: drop a connections.json in the settings folder and press refresh. Existing identical connections are skipped, name clashes get a numbered suffix
+    - Invalid or unreadable connections no longer prevent the plugin from starting
+    - Editing a connection now rejects names already in use, and a failed edit no longer deletes the original connection
+    1.3.0:
+    - Fix host field validation. Allow different remote bind address (other than 127.0.0.1)
 tracker=https://github.com/lymperis-e/qgis_remote_db_plugin/issues
 repository=https://github.com/lymperis-e/qgis_remote_db_plugin
 hasProcessingProvider=no

@@ -46,8 +46,11 @@ To set up a connection with the `remote_db` plugin in QGIS:
 
 ## Advanced usage
 
-For advanced users, it is possible to edit your _connections.json_ file directly. Click the button **'Open Settings Folder'** from the top of the plugin panel. A new window
-will open within the settings folder. Open _connections.json_ with your prefered text editor and add your connection/s parameters manually. Available parameters are:
+Connections are stored in a SQLite database, _connections.db_, inside the settings folder. Click the button **'Open Settings Folder'** from the top of the plugin panel to open it.
+
+Older versions of the plugin stored connections in _connections.json_. On startup, this file is automatically imported into _connections.db_ and then moved to _.backups/connections.old.json.bk_. All backups (including unreadable databases) are kept in the _.backups_ subfolder, so the settings folder only contains your current settings. If the file cannot be read, it is left untouched and the error is written to the QGIS message log.
+
+For bulk imports, advanced users can place a _connections.json_ file (`{"connections": [ ... ]}`) in the settings folder and press **refresh**. Connections that already exist unchanged are skipped. If a name is already used by a different connection, the imported one gets a numbered suffix, for example `name (2)`. Available parameters are:
 
 | Parameter                      | Description                                                      |
 | ------------------------------ | ---------------------------------------------------------------- |
@@ -105,3 +108,7 @@ python scripts/export.py --install-dev
 ```bash
 python -m black .
 ```
+
+### Publishing the Plugin
+
+To publish a new version of the plugin, create a new tag following the format `vX.Y.Z` and push it to the repository. The GitHub Actions workflow will automatically build and publish the plugin.

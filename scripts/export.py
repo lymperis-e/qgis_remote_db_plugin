@@ -23,11 +23,11 @@ THE SOFTWARE.
 
 """
 
+import argparse
 import os
 import shutil
-import zipfile
-import argparse
 import sys
+import zipfile
 
 
 def clear_directory(path):
@@ -61,8 +61,14 @@ def copy_files(src_dir, dest_dir, exclude_list):
             continue
 
         if os.path.isdir(src_item):
-            # Recursively copy subdirectories
-            shutil.copytree(src_item, dest_item)
+            # Recursively copy subdirectories, never shipping local connection data
+            shutil.copytree(
+                src_item,
+                dest_item,
+                ignore=shutil.ignore_patterns(
+                    "connections.json", "connections.db*", "*.bk", ".backups"
+                ),
+            )
         else:
             # Copy individual files
             shutil.copy2(src_item, dest_item)
