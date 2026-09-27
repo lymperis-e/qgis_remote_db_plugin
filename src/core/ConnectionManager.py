@@ -3,6 +3,7 @@ import os
 from .Connection import Connection
 from .db.settings_db import DuplicateNameError, SettingsDatabase
 from .utils.logger import PLUGIN_LOGGER
+from .utils.ssh_config import DetectedHost, load_from_ssh_config
 
 
 class ConnectionManager:
@@ -85,6 +86,40 @@ class ConnectionManager:
     def remove_connection(self, connection):
         self.database.delete(connection.name)
         self.available_connections.remove(connection)
+
+    def detect_ssh_config_hosts(self, config_path=None):
+        """
+        Returns a DetectedHost for every host of the user's SSH config. Hosts that
+        cannot be imported have `problem` set. Raises OSError if the config is unreadable.
+        """
+        used_local_ports = {conn.local_port for conn in self.available_connections}
+        existing_names = {conn.name for conn in self.available_connections}
+        hosts = []
+
+        for parameters, warnings in load_from_ssh_config(config_path, used_local_ports):
+            host = DetectedHost(parameters, warnings)
+            if parameters["name"] in existing_names:
+                host.problem = "already exists"
+            else:
+                try:
+                    Connection(self.validate_parameters(parameters))
+                except (TypeError, ValueError) as e:
+                    host.problem = str(e)
+            hosts.append(host)
+        return hosts
+
+    def import_connections(self, parameters_list):
+        """
+        Adds the given connections. Returns (imported names, (name, reason) pairs).
+        """
+        imported, skipped = [], []
+        for parameters in parameters_list:
+            try:
+                self.add_connection(parameters)
+                imported.append(parameters["name"])
+            except (ReferenceError, ValueError) as e:
+                skipped.append((parameters["name"], str(e)))
+        return imported, skipped
 
     def validate_parameters(self, parameters):
         """

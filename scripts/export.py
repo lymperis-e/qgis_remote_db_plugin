@@ -24,10 +24,64 @@ THE SOFTWARE.
 """
 
 import argparse
+import glob
 import os
 import shutil
 import sys
+import tempfile
 import zipfile
+
+# User data living inside the installed plugin folder, which must survive a reinstall
+SETTINGS_DIRNAME = "settings"
+USER_DATA_PATTERNS = ("connections.db*", "connections.json", "*.bk", ".backups")
+
+
+def preserve_user_settings(plugin_dir, backup_dir):
+    """
+    Moves user data out of an installed plugin's settings folder into backup_dir.
+
+    Returns the list of backed up item names.
+    """
+    settings_dir = os.path.join(plugin_dir, SETTINGS_DIRNAME)
+    if not os.path.isdir(settings_dir):
+        return []
+
+    preserved = []
+    for pattern in USER_DATA_PATTERNS:
+        for item_path in glob.glob(os.path.join(settings_dir, pattern)):
+            name = os.path.basename(item_path)
+            target = os.path.join(backup_dir, name)
+            if os.path.isdir(item_path):
+                shutil.copytree(item_path, target)
+            else:
+                shutil.copy2(item_path, target)
+            preserved.append(name)
+
+    if preserved:
+        print(f"Preserving existing settings: {', '.join(preserved)}")
+    return preserved
+
+
+def restore_user_settings(backup_dir, preserved, plugin_dir):
+    """
+    Restores previously preserved user data into the installed plugin's settings folder.
+    """
+    if not preserved:
+        return
+
+    settings_dir = os.path.join(plugin_dir, SETTINGS_DIRNAME)
+    os.makedirs(settings_dir, exist_ok=True)
+
+    for name in preserved:
+        source = os.path.join(backup_dir, name)
+        target = os.path.join(settings_dir, name)
+        if os.path.isdir(source):
+            shutil.rmtree(target, ignore_errors=True)
+            shutil.copytree(source, target)
+        else:
+            shutil.copy2(source, target)
+
+    print(f"Restored existing settings: {', '.join(preserved)}")
 
 
 def clear_directory(path):
@@ -115,32 +169,38 @@ def create_release(plugin_name, src_dir, dest_dir, exclude_list):
 
 def copy_release_to_qgis_plugins(src_dir, dest_dir):
     """
-    Copies the release to the QGIS plugins folder.
+    Copies the release to the QGIS plugins folder, preserving user settings data.
     """
     print(f"Copying release to {dest_dir}...")
 
-    # Clear the directory if it exists
-    if os.path.exists(dest_dir):
-        for item in os.listdir(dest_dir):
-            item_path = os.path.join(dest_dir, item)
-            if os.path.isdir(item_path):
-                shutil.rmtree(item_path)
-            else:
-                os.remove(item_path)
-    else:
-        # Create the directory if it doesn't exist
-        os.makedirs(dest_dir)
+    with tempfile.TemporaryDirectory() as backup_dir:
+        preserved = preserve_user_settings(dest_dir, backup_dir)
 
-    for item in os.listdir(src_dir):
-        src_item = os.path.join(src_dir, item)
-        dest_item = os.path.join(dest_dir, item)
-
-        if os.path.isdir(src_item):
-            # Recursively copy subdirectories
-            shutil.copytree(src_item, dest_item)
+        # Clear the directory if it exists
+        if os.path.exists(dest_dir):
+            for item in os.listdir(dest_dir):
+                item_path = os.path.join(dest_dir, item)
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                else:
+                    os.remove(item_path)
         else:
-            # Copy individual files
-            shutil.copy2(src_item, dest_item)
+            # Create the directory if it doesn't exist
+            os.makedirs(dest_dir)
+
+        for item in os.listdir(src_dir):
+            src_item = os.path.join(src_dir, item)
+            dest_item = os.path.join(dest_dir, item)
+
+            if os.path.isdir(src_item):
+                # Recursively copy subdirectories
+                shutil.copytree(src_item, dest_item)
+            else:
+                # Copy individual files
+                shutil.copy2(src_item, dest_item)
+
+        restore_user_settings(backup_dir, preserved, dest_dir)
+
     print("Release copied successfully.")
 
 

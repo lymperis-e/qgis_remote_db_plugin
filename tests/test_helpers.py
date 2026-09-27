@@ -89,25 +89,6 @@ def install_sshtunnel_stub():
     sys.modules[module_name] = module
 
 
-def install_sshconf_stub(read_ssh_config_impl=None):
-    """Install a stub sshconf module used by src.core.utils.ssh_config."""
-
-    module = types.ModuleType("sshconf")
-
-    def _default_reader(path):
-        class ParsedConfig:
-            def hosts(self):
-                return []
-
-            def host(self, host_name):
-                return {}
-
-        return ParsedConfig()
-
-    module.read_ssh_config = read_ssh_config_impl or _default_reader
-    sys.modules["sshconf"] = module
-
-
 def ensure_project_root_on_path():
     """Make sure tests can import the src package when discovered from tests/."""
 

@@ -35,6 +35,7 @@ changelog=
     - Existing connections.json files are migrated automatically and kept as a backup in settings/.backups. The file is only moved once every connection has been safely stored
     - All backups are kept in settings/.backups, so the settings folder only contains the current settings
     - Bulk import: drop a connections.json in the settings folder and press refresh. Existing identical connections are skipped, name clashes get a numbered suffix
+    - New: Import SSH Config button, lists the hosts of your ~/.ssh/config and imports the ones you select (Linux, macOS and Windows). No extra dependencies are needed
     - Invalid or unreadable connections no longer prevent the plugin from starting
     - Editing a connection now rejects names already in use, and a failed edit no longer deletes the original connection
     1.3.0:

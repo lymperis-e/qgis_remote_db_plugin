@@ -44,6 +44,16 @@ To set up a connection with the `remote_db` plugin in QGIS:
 12. Click "OK" to save the connection.
 13. The new connection should now appear in the list. Click `Connect` and you are good to go!
 
+## Import from SSH config
+
+Click **Import SSH Config** to list the hosts of your OpenSSH client config: `~/.ssh/config` on Linux and macOS, `%USERPROFILE%\.ssh\config` on Windows. All importable hosts are checked by default. Uncheck the ones you don't want and click **Import**. Hosts that already exist or can't be imported are shown greyed out; hover over a host for details.
+
+- **What is imported:** `HostName`, `User`, `Port`, the first existing `IdentityFile`, and the first `LocalForward`. `Host *` defaults, multiple aliases per `Host` line, negated patterns, `Match all` and `Include` are supported.
+- **Ports:** a host without a `LocalForward` gets remote port `5432` and the next free local port, starting at `5433`. Review the ports before connecting.
+- **Skipped hosts:** wildcard patterns, hosts that already exist as connections, and aliases without a valid `HostName` are not imported.
+- **Not supported:** `ProxyJump` and `ProxyCommand`. Hosts that use them are imported without the proxy, and you get a warning. Nothing in the config is ever executed.
+- **Passwords:** none are imported. Authentication uses your keys or SSH agent, and you can add a password by editing the connection.
+
 ## Advanced usage
 
 Connections are stored in a SQLite database, _connections.db_, inside the settings folder. Click the button **'Open Settings Folder'** from the top of the plugin panel to open it.
