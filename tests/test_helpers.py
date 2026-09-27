@@ -1,6 +1,7 @@
 import sys
 import time
 import types
+from enum import Flag
 from pathlib import Path
 
 
@@ -38,8 +39,9 @@ class StubForwarder:
 
 
 class DummyQMessageBox:
-    Yes = 1
-    No = 0
+    class StandardButton(Flag):
+        Yes = 1
+        No = 0
 
     @staticmethod
     def question(*args, **kwargs):
@@ -87,25 +89,6 @@ def install_sshtunnel_stub():
     module = types.ModuleType(module_name)
     module.SSHTunnelForwarder = StubForwarder
     sys.modules[module_name] = module
-
-
-def install_sshconf_stub(read_ssh_config_impl=None):
-    """Install a stub sshconf module used by src.core.utils.ssh_config."""
-
-    module = types.ModuleType("sshconf")
-
-    def _default_reader(path):
-        class ParsedConfig:
-            def hosts(self):
-                return []
-
-            def host(self, host_name):
-                return {}
-
-        return ParsedConfig()
-
-    module.read_ssh_config = read_ssh_config_impl or _default_reader
-    sys.modules["sshconf"] = module
 
 
 def ensure_project_root_on_path():

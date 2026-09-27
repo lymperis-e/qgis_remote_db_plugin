@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  RemoteDB
@@ -21,20 +20,21 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import os.path
 
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QUrl
-from qgis.PyQt.QtGui import QIcon, QDesktopServices
-from qgis.PyQt.QtWidgets import QAction, QDialog, QListWidgetItem, QLabel, QMessageBox
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QTranslator, QUrl
+from qgis.PyQt.QtGui import QDesktopServices, QIcon
+from qgis.PyQt.QtWidgets import QAction, QDialog, QLabel, QListWidgetItem, QMessageBox
 
-from .resources import *
-from .remote_db_dockwidget import RemoteDBDockWidget
-from .core.ConnectionManager import ConnectionManager
-from .core.ConnectionListItem import ConnectionListItem
 from .core.AddConnectionDialog import AddConnectionDialog
-
-from .core.utils.ssh_config import load_from_ssh_config
+from .core.ConnectionListItem import ConnectionListItem
+from .core.ConnectionManager import ConnectionManager
+from .core.ImportSSHConfigDialog import ImportSSHConfigDialog
 from .core.utils.logger import PLUGIN_LOGGER
+from .core.utils.ssh_config import default_ssh_config_path
+from .remote_db_dockwidget import RemoteDBDockWidget
+from .resources import *
 
 
 class RemoteDB:
@@ -227,13 +227,19 @@ class RemoteDB:
 
             self.dockwidget.refresh_btn.clicked.connect(self.refresh_connections)
 
+            self.dockwidget.import_ssh_config_btn.clicked.connect(
+                self.import_ssh_config
+            )
+
             self.dockwidget.open_settings_dir_btn.clicked.connect(
                 self.open_settings_folder
             )
 
             self.populate_connections_list()
 
-            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
+            self.iface.addDockWidget(
+                Qt.DockWidgetArea.LeftDockWidgetArea, self.dockwidget
+            )
             self.dockwidget.show()
 
     def populate_connections_list(self):
@@ -242,7 +248,7 @@ class RemoteDB:
         # If no connections exist, display a message
         if len(self.connectionManager.available_connections) == 0:
             custom_widget = QLabel()
-            custom_widget.setTextFormat(Qt.RichText)
+            custom_widget.setTextFormat(Qt.TextFormat.RichText)
             custom_widget.setText(
                 "   <strong> No connections. </strong> Add a new connection using the button above!"
             )
@@ -264,33 +270,53 @@ class RemoteDB:
 
             # Signals
             custom_widget.connectionEdited.connect(self.populate_connections_list)
+            custom_widget.connectionDeleted.connect(self.populate_connections_list)
 
             new_item = QListWidgetItem(self.dockwidget.conn_list_widget)
             new_item.setSizeHint(custom_widget.sizeHint())
             self.dockwidget.conn_list_widget.addItem(new_item)
             self.dockwidget.conn_list_widget.setItemWidget(new_item, custom_widget)
 
-    def load_ssh_conf(self):
-        # TEST
-        config = load_from_ssh_config()
+    def import_ssh_config(self):
+        config_path = default_ssh_config_path()
         try:
-            for param in config:
-                self.connectionManager.add_connection(param)
+            hosts = self.connectionManager.detect_ssh_config_hosts(config_path)
+        except OSError as e:
+            PLUGIN_LOGGER.error("Could not read SSH config '%s': %s", config_path, e)
+            QMessageBox.warning(
+                self.dockwidget,
+                "Import SSH Config",
+                f"Could not read {config_path}:\n{e}",
+            )
+            return
 
-        # Duplicate connection Name
-        except ReferenceError as e:
-            notify_user = QMessageBox(self.dockwidget)
-            notify_user.setText(str(e))
-            notify_user.exec_()
-        # Invalid port
-        except ValueError as e:
-            PLUGIN_LOGGER.warning(str(e))
-            notify_user = QMessageBox(self.dockwidget)
-            notify_user.setText(str(e))
-            notify_user.exec_()
+        if not hosts:
+            QMessageBox.information(
+                self.dockwidget,
+                "Import SSH Config",
+                f"No hosts found in {config_path}.",
+            )
+            return
 
-        self.refresh_connections()
-        # END TEST
+        dialog = ImportSSHConfigDialog(hosts, config_path, self.dockwidget)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        imported, skipped = self.connectionManager.import_connections(
+            dialog.selected_parameters()
+        )
+        self.populate_connections_list()
+        self.dockwidget.status_report_label.setText(
+            f"Imported {len(imported)} connection(s) from SSH config."
+        )
+
+        if skipped:
+            details = "\n".join(f"  - {name}: {reason}" for name, reason in skipped)
+            QMessageBox.warning(
+                self.dockwidget,
+                "Import SSH Config",
+                f"Some connections could not be imported:\n{details}",
+            )
 
     def refresh_connections(self):
         self.connectionManager.refresh_connections()
@@ -298,8 +324,8 @@ class RemoteDB:
 
     def add_connection_dialog(self):
         dialog = AddConnectionDialog()
-        result = dialog.exec_()
-        if result == QDialog.Accepted:
+        result = dialog.exec()
+        if result == QDialog.DialogCode.Accepted:
             connection_info = dialog.get_connection_info()
 
             try:
@@ -312,13 +338,13 @@ class RemoteDB:
             except ReferenceError as e:
                 notify_user = QMessageBox(self.dockwidget)
                 notify_user.setText(str(e))
-                notify_user.exec_()
+                notify_user.exec()
             # Invalid port
             except ValueError as e:
                 PLUGIN_LOGGER.warning(str(e))
                 notify_user = QMessageBox(self.dockwidget)
                 notify_user.setText(str(e))
-                notify_user.exec_()
+                notify_user.exec()
 
     def open_settings_folder(self):
         QDesktopServices.openUrl(

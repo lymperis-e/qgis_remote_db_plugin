@@ -44,10 +44,23 @@ To set up a connection with the `remote_db` plugin in QGIS:
 12. Click "OK" to save the connection.
 13. The new connection should now appear in the list. Click `Connect` and you are good to go!
 
+## Import from SSH config
+
+Click **Import SSH Config** to list the hosts of your OpenSSH client config: `~/.ssh/config` on Linux and macOS, `%USERPROFILE%\.ssh\config` on Windows. All importable hosts are checked by default. Uncheck the ones you don't want and click **Import**. Hosts that already exist or can't be imported are shown greyed out; hover over a host for details.
+
+- **What is imported:** `HostName`, `User`, `Port`, the first existing `IdentityFile`, and the first `LocalForward`. `Host *` defaults, multiple aliases per `Host` line, negated patterns, `Match all` and `Include` are supported.
+- **Ports:** a host without a `LocalForward` gets remote port `5432` and the next free local port, starting at `5433`. Review the ports before connecting.
+- **Skipped hosts:** wildcard patterns, hosts that already exist as connections, and aliases without a valid `HostName` are not imported.
+- **Not supported:** `ProxyJump` and `ProxyCommand`. Hosts that use them are imported without the proxy, and you get a warning. Nothing in the config is ever executed.
+- **Passwords:** none are imported. Authentication uses your keys or SSH agent, and you can add a password by editing the connection.
+
 ## Advanced usage
 
-For advanced users, it is possible to edit your _connections.json_ file directly. Click the button **'Open Settings Folder'** from the top of the plugin panel. A new window
-will open within the settings folder. Open _connections.json_ with your prefered text editor and add your connection/s parameters manually. Available parameters are:
+Connections are stored in a SQLite database, _connections.db_, inside the settings folder. Click the button **'Open Settings Folder'** from the top of the plugin panel to open it.
+
+Older versions of the plugin stored connections in _connections.json_. On startup, this file is automatically imported into _connections.db_ and then moved to _.backups/connections.old.json.bk_. All backups (including unreadable databases) are kept in the _.backups_ subfolder, so the settings folder only contains your current settings. If the file cannot be read, it is left untouched and the error is written to the QGIS message log.
+
+For bulk imports, advanced users can place a _connections.json_ file (`{"connections": [ ... ]}`) in the settings folder and press **refresh**. Connections that already exist unchanged are skipped. If a name is already used by a different connection, the imported one gets a numbered suffix, for example `name (2)`. Available parameters are:
 
 | Parameter                      | Description                                                      |
 | ------------------------------ | ---------------------------------------------------------------- |
@@ -105,3 +118,7 @@ python scripts/export.py --install-dev
 ```bash
 python -m black .
 ```
+
+### Publishing the Plugin
+
+To publish a new version of the plugin, create a new tag following the format `vX.Y.Z` and push it to the repository. The GitHub Actions workflow will automatically build and publish the plugin.
