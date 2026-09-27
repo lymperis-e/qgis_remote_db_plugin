@@ -27,7 +27,6 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QUrl
 from qgis.PyQt.QtGui import QIcon, QDesktopServices
 from qgis.PyQt.QtWidgets import QAction, QDialog, QListWidgetItem, QLabel, QMessageBox
 
-from .resources import *
 from .remote_db_dockwidget import RemoteDBDockWidget
 from .core.ConnectionManager import ConnectionManager
 from .core.ConnectionListItem import ConnectionListItem
@@ -165,9 +164,7 @@ class RemoteDB:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = os.path.join(
-            os.path.dirname(__file__), "img", "icon.png"
-        )  # ":/plugins/remote_db/icon.png"
+        icon_path = os.path.join(os.path.dirname(__file__), "img", "icon.png")
         self.add_action(
             icon_path,
             text=self.tr("Open SSH tunnels to remote databases"),

@@ -232,12 +232,10 @@ def main():
     src_dir = os.path.join(root_dir, "src")
     dest_dir = os.path.join(root_dir, "release", plugin_name)
     exclude_list = [
-        "Makefile",
         ".git",
         ".vscode",
         "release",
         "scripts",
-        "pb_tool.cfg",
         "*.pyc",
         "pylintrc",
         "*.bat",
