@@ -22,24 +22,26 @@ class ImportSSHConfigDialog(QDialog):
         layout = QVBoxLayout(self)
 
         header = QLabel(f"Hosts found in <b>{config_path}</b>:")
-        header.setTextFormat(Qt.RichText)
+        header.setTextFormat(Qt.TextFormat.RichText)
         header.setWordWrap(True)
         layout.addWidget(header)
 
         self.hosts_list = QListWidget()
-        warning_icon = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
+        warning_icon = self.style().standardIcon(
+            QStyle.StandardPixmap.SP_MessageBoxWarning
+        )
         for index, host in enumerate(hosts):
             item = QListWidgetItem(self._describe(host))
-            item.setData(Qt.UserRole, index)
+            item.setData(Qt.ItemDataRole.UserRole, index)
             if host.importable:
-                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-                item.setCheckState(Qt.Checked)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(Qt.CheckState.Checked)
                 if host.warnings:
                     item.setIcon(warning_icon)
                     item.setToolTip("\n".join(host.warnings))
             else:
-                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-                item.setCheckState(Qt.Unchecked)
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                item.setCheckState(Qt.CheckState.Unchecked)
                 item.setToolTip(host.problem)
             self.hosts_list.addItem(item)
         self.hosts_list.itemChanged.connect(self._update_import_button)
@@ -52,9 +54,9 @@ class ImportSSHConfigDialog(QDialog):
         hint.setWordWrap(True)
         layout.addWidget(hint)
 
-        self.buttons = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
         self.import_button = self.buttons.addButton(
-            "Import", QDialogButtonBox.AcceptRole
+            "Import", QDialogButtonBox.ButtonRole.AcceptRole
         )
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
@@ -75,7 +77,9 @@ class ImportSSHConfigDialog(QDialog):
 
     def _checked_items(self):
         items = (self.hosts_list.item(i) for i in range(self.hosts_list.count()))
-        return [item for item in items if item.checkState() == Qt.Checked]
+        return [
+            item for item in items if item.checkState() == Qt.CheckState.Checked
+        ]
 
     def _update_import_button(self, *_):
         count = len(self._checked_items())
@@ -84,6 +88,6 @@ class ImportSSHConfigDialog(QDialog):
 
     def selected_parameters(self):
         return [
-            self._hosts[item.data(Qt.UserRole)].parameters
+            self._hosts[item.data(Qt.ItemDataRole.UserRole)].parameters
             for item in self._checked_items()
         ]

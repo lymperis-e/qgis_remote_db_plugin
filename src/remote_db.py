@@ -297,7 +297,7 @@ class RemoteDB:
             return
 
         dialog = ImportSSHConfigDialog(hosts, config_path, self.dockwidget)
-        if dialog.exec_() != QDialog.Accepted:
+        if dialog.exec() != QDialog.DialogCode.Accepted:
             return
 
         imported, skipped = self.connectionManager.import_connections(
