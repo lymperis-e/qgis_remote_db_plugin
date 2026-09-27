@@ -77,9 +77,7 @@ class ImportSSHConfigDialog(QDialog):
 
     def _checked_items(self):
         items = (self.hosts_list.item(i) for i in range(self.hosts_list.count()))
-        return [
-            item for item in items if item.checkState() == Qt.CheckState.Checked
-        ]
+        return [item for item in items if item.checkState() == Qt.CheckState.Checked]
 
     def _update_import_button(self, *_):
         count = len(self._checked_items())

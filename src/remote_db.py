@@ -237,7 +237,9 @@ class RemoteDB:
 
             self.populate_connections_list()
 
-            self.iface.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dockwidget)
+            self.iface.addDockWidget(
+                Qt.DockWidgetArea.LeftDockWidgetArea, self.dockwidget
+            )
             self.dockwidget.show()
 
     def populate_connections_list(self):
