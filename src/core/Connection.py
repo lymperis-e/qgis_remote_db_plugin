@@ -1,5 +1,6 @@
 import ipaddress
 import re
+
 from .dependencies import check
 
 DEPENDENCIES_EXIST = False
@@ -9,7 +10,7 @@ try:
     DEPENDENCIES_EXIST = True
 except Exception:
     try:
-        check([("paramiko", "==3.3.1"), ("pyopenssl", "==23.3.0"), "sshconf"])
+        check([("paramiko", "==3.3.1"), ("pyopenssl", "==23.3.0")])
     finally:
         from .sshtunnel.sshtunnel import SSHTunnelForwarder
 
@@ -18,7 +19,7 @@ except Exception:
 from dataclasses import dataclass
 
 # from .utils.timeout import timeout
-from .utils.logger import PLUGIN_LOGGER, SSHTUNNEL_LOGGER
+from .utils.logger import SSHTUNNEL_LOGGER
 
 LOCAL_BIND_ADDR = "127.0.0.1"  # "0.0.0.0"
 
