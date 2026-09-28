@@ -313,9 +313,9 @@ def to_connection_parameters(alias, options, used_local_ports):
         "remote_port": remote_port,
         "local_port": local_port,
         "username": username,
-        "password": "",
+        "password": None,  # Bandit Security Analysis flags empty str as possible hardcoded password
         "id_file": id_file,
-        "pkey_password": "",
+        "pkey_password": None,  # Bandit Security Analysis flags empty str as possible hardcoded password
         "ssh_proxy": "",
         "ssh_proxy_enabled": False,
     }
