@@ -1,8 +1,9 @@
 name: Publish Plugin
 
 on:
-    tag:
-        - "v*"
+    push:
+        tags:
+            - "v*"
 
 permissions:
     contents: write
