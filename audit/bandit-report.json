@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2026-09-28T11:26:34Z",
+  "generated_at": "2026-09-28T11:47:43Z",
   "metrics": {
     "_totals": {
-      "CONFIDENCE.HIGH": 8,
+      "CONFIDENCE.HIGH": 2,
       "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 7,
+      "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 10,
-      "SEVERITY.MEDIUM": 5,
+      "SEVERITY.LOW": 2,
+      "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 4231,
+      "loc": 2568,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -161,11 +161,11 @@
     "src/core/db/settings_db.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 3,
+      "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
       "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 3,
+      "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 281,
       "nosec": 0,
@@ -185,19 +185,6 @@
       "skipped_tests": 0
     },
     "src/core/dependencies/check_dependencies.py": {
-      "CONFIDENCE.HIGH": 2,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 2,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 169,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "src/core/sshtunnel/__init__.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
@@ -206,20 +193,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 0,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "src/core/sshtunnel/sshtunnel.py": {
-      "CONFIDENCE.HIGH": 4,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 2,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 4,
-      "SEVERITY.MEDIUM": 2,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 1663,
+      "loc": 169,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -265,10 +239,10 @@
     "src/core/utils/ssh_config.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 2,
+      "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 2,
+      "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 276,
@@ -370,299 +344,6 @@
       "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html",
       "test_id": "B110",
       "test_name": "try_except_pass"
-    },
-    {
-      "code": "152                 cursor = db.execute(\n153                     f\"UPDATE connections SET {assignments} WHERE name = ?\",\n154                     [values[column] for column in _COLUMN_NAMES] + [name],\n",
-      "col_offset": 22,
-      "end_col_offset": 45,
-      "filename": "src/core/db/settings_db.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 89,
-        "link": "https://cwe.mitre.org/data/definitions/89.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Possible SQL injection vector through string-based query construction.",
-      "line_number": 153,
-      "line_range": [
-        153
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
-      "test_id": "B608",
-      "test_name": "hardcoded_sql_expressions"
-    },
-    {
-      "code": "285         db.execute(\n286             f\"INSERT INTO connections ({columns}, extra) VALUES ({placeholders})\",\n287             [values[column] for column in _COLUMN_NAMES] + [extra],\n",
-      "col_offset": 14,
-      "end_col_offset": 39,
-      "filename": "src/core/db/settings_db.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 89,
-        "link": "https://cwe.mitre.org/data/definitions/89.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Possible SQL injection vector through string-based query construction.",
-      "line_number": 286,
-      "line_range": [
-        286
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
-      "test_id": "B608",
-      "test_name": "hardcoded_sql_expressions"
-    },
-    {
-      "code": "294         row = db.execute(\n295             f\"SELECT 1 FROM connections WHERE id = ? AND {conditions} AND extra IS ?\",\n296             [row_id] + [values[column] for column in compared] + [extra],\n",
-      "col_offset": 14,
-      "end_col_offset": 57,
-      "filename": "src/core/db/settings_db.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 89,
-        "link": "https://cwe.mitre.org/data/definitions/89.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Possible SQL injection vector through string-based query construction.",
-      "line_number": 295,
-      "line_range": [
-        295
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
-      "test_id": "B608",
-      "test_name": "hardcoded_sql_expressions"
-    },
-    {
-      "code": "6 from qgis.PyQt.QtWidgets import QMessageBox\n7 import subprocess\n8 \n",
-      "col_offset": 0,
-      "end_col_offset": 17,
-      "filename": "src/core/dependencies/check_dependencies.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Consider possible security implications associated with the subprocess module.",
-      "line_number": 7,
-      "line_range": [
-        7
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess",
-      "test_id": "B404",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "203                 PLUGIN_LOGGER.info(f\"Installing {pip_requirement} using {pip_path}...\")\n204                 result = subprocess.run(\n205                     [pip_path, \"install\", pip_requirement],\n206                     capture_output=True,\n207                     text=True,\n208                     check=True,\n209                 )\n210                 PLUGIN_LOGGER.info(f\"Successfully installed {pip_requirement}\")\n",
-      "col_offset": 25,
-      "end_col_offset": 17,
-      "filename": "src/core/dependencies/check_dependencies.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "subprocess call - check for execution of untrusted input.",
-      "line_number": 204,
-      "line_range": [
-        204,
-        205,
-        206,
-        207,
-        208,
-        209
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
-      "test_name": "subprocess_without_shell_equals_true"
-    },
-    {
-      "code": "111 def check_host(host):\n112     assert isinstance(host, string_types), \"IP is not a string ({0})\".format(\n113         type(host).__name__\n114     )\n115 \n",
-      "col_offset": 4,
-      "end_col_offset": 5,
-      "filename": "src/core/sshtunnel/sshtunnel.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
-      "line_number": 112,
-      "line_range": [
-        112,
-        113,
-        114
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html",
-      "test_id": "B101",
-      "test_name": "assert_used"
-    },
-    {
-      "code": "117 def check_port(port):\n118     assert isinstance(port, int), \"PORT is not a number\"\n119     assert port >= 0, \"PORT < 0 ({0})\".format(port)\n",
-      "col_offset": 4,
-      "end_col_offset": 56,
-      "filename": "src/core/sshtunnel/sshtunnel.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
-      "line_number": 118,
-      "line_range": [
-        118
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html",
-      "test_id": "B101",
-      "test_name": "assert_used"
-    },
-    {
-      "code": "118     assert isinstance(port, int), \"PORT is not a number\"\n119     assert port >= 0, \"PORT < 0 ({0})\".format(port)\n120 \n",
-      "col_offset": 4,
-      "end_col_offset": 51,
-      "filename": "src/core/sshtunnel/sshtunnel.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
-      "line_number": 119,
-      "line_range": [
-        119
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html",
-      "test_id": "B101",
-      "test_name": "assert_used"
-    },
-    {
-      "code": "185     \"\"\"\n186     assert all(isinstance(x, (tuple, string_types)) for x in address_list)\n187     if is_remote and any(isinstance(x, string_types) for x in address_list):\n",
-      "col_offset": 4,
-      "end_col_offset": 74,
-      "filename": "src/core/sshtunnel/sshtunnel.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
-      "line_number": 186,
-      "line_range": [
-        186
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html",
-      "test_id": "B101",
-      "test_name": "assert_used"
-    },
-    {
-      "code": "849                 (\"127.0.0.1\", _srv.local_port)\n850                 if _srv.local_host == \"0.0.0.0\"\n851                 else _srv.local_address\n",
-      "col_offset": 38,
-      "end_col_offset": 47,
-      "filename": "src/core/sshtunnel/sshtunnel.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 605,
-        "link": "https://cwe.mitre.org/data/definitions/605.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Possible binding to all interfaces.",
-      "line_number": 850,
-      "line_range": [
-        850
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b104_hardcoded_bind_all_interfaces.html",
-      "test_id": "B104",
-      "test_name": "hardcoded_bind_all_interfaces"
-    },
-    {
-      "code": "1185             )\n1186         local_binds.extend([(\"0.0.0.0\", 0) for x in range(count)])\n1187         return local_binds\n",
-      "col_offset": 29,
-      "end_col_offset": 38,
-      "filename": "src/core/sshtunnel/sshtunnel.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 605,
-        "link": "https://cwe.mitre.org/data/definitions/605.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Possible binding to all interfaces.",
-      "line_number": 1186,
-      "line_range": [
-        1186
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b104_hardcoded_bind_all_interfaces.html",
-      "test_id": "B104",
-      "test_name": "hardcoded_bind_all_interfaces"
-    },
-    {
-      "code": "315         \"username\": username,\n316         \"password\": None,  # Bandit Security Analysis flags empty str as possible hardcoded password\n317         \"id_file\": id_file,\n318         \"pkey_password\": None,  # Bandit Security Analysis flags empty str as possible hardcoded password\n319         \"ssh_proxy\": \"\",\n320         \"ssh_proxy_enabled\": False,\n321     }\n322     return parameters, warnings\n323 \n324 \n325 def load_from_ssh_config(config_path=None, used_local_ports=()):\n326     \"\"\"\n327     Returns (list of (parameters, warnings)) for every concrete Host in the config.\n328     Returns an empty list if the config file does not exist.\n329     Raises OSError if it exists but cannot be read.\n330     \"\"\"\n",
-      "col_offset": 8,
-      "end_col_offset": 18,
-      "filename": "src/core/utils/ssh_config.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 259,
-        "link": "https://cwe.mitre.org/data/definitions/259.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'None'",
-      "line_number": 316,
-      "line_range": [
-        308,
-        309,
-        310,
-        311,
-        312,
-        313,
-        314,
-        315,
-        316,
-        317,
-        318,
-        319,
-        320,
-        321
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html",
-      "test_id": "B105",
-      "test_name": "hardcoded_password_string"
-    },
-    {
-      "code": "317         \"id_file\": id_file,\n318         \"pkey_password\": None,  # Bandit Security Analysis flags empty str as possible hardcoded password\n319         \"ssh_proxy\": \"\",\n320         \"ssh_proxy_enabled\": False,\n321     }\n322     return parameters, warnings\n323 \n324 \n325 def load_from_ssh_config(config_path=None, used_local_ports=()):\n326     \"\"\"\n327     Returns (list of (parameters, warnings)) for every concrete Host in the config.\n328     Returns an empty list if the config file does not exist.\n329     Raises OSError if it exists but cannot be read.\n330     \"\"\"\n331     config_path = config_path or default_ssh_config_path()\n332     if not os.path.isfile(config_path):\n",
-      "col_offset": 8,
-      "end_col_offset": 23,
-      "filename": "src/core/utils/ssh_config.py",
-      "issue_confidence": "MEDIUM",
-      "issue_cwe": {
-        "id": 259,
-        "link": "https://cwe.mitre.org/data/definitions/259.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'None'",
-      "line_number": 318,
-      "line_range": [
-        308,
-        309,
-        310,
-        311,
-        312,
-        313,
-        314,
-        315,
-        316,
-        317,
-        318,
-        319,
-        320,
-        321
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html",
-      "test_id": "B105",
-      "test_name": "hardcoded_password_string"
     }
   ]
 }

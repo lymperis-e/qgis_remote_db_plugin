@@ -30,13 +30,13 @@
 </head>
 <body>
     <h1>Bandit Security Audit</h1>
-    <p class="generated">Generated: 2026-09-28T11:26:34Z</p>
+    <p class="generated">Generated: 2026-09-28T11:47:43Z</p>
     <section class="summary" aria-label="Finding summary">
-        <div class="metric"><strong>15</strong><span>Total findings</span></div>
+        <div class="metric"><strong>2</strong><span>Total findings</span></div>
         <div class="metric"><strong>0</strong><span>High severity</span></div>
-        <div class="metric"><strong>5</strong><span>Medium severity</span></div>
-        <div class="metric"><strong>10</strong><span>Low severity</span></div>
-        <div class="metric"><strong>4231</strong><span>Lines analyzed</span></div>
+        <div class="metric"><strong>0</strong><span>Medium severity</span></div>
+        <div class="metric"><strong>2</strong><span>Low severity</span></div>
+        <div class="metric"><strong>2568</strong><span>Lines analyzed</span></div>
     </section>
     
     <div class="table-wrap">
@@ -50,78 +50,6 @@
 137         except Exception:
 138             pass
 139         encodings.append(&quot;latin-1&quot;)  # never fails, last resort
-</pre></td></tr><tr><td><span class="severity medium">MEDIUM</span></td><td><code>B608</code></td><td><code>src/core/db/settings_db.py:153</code></td><td>Possible SQL injection vector through string-based query construction.<pre>152                 cursor = db.execute(
-153                     f&quot;UPDATE connections SET {assignments} WHERE name = ?&quot;,
-154                     [values[column] for column in _COLUMN_NAMES] + [name],
-</pre></td></tr><tr><td><span class="severity medium">MEDIUM</span></td><td><code>B608</code></td><td><code>src/core/db/settings_db.py:286</code></td><td>Possible SQL injection vector through string-based query construction.<pre>285         db.execute(
-286             f&quot;INSERT INTO connections ({columns}, extra) VALUES ({placeholders})&quot;,
-287             [values[column] for column in _COLUMN_NAMES] + [extra],
-</pre></td></tr><tr><td><span class="severity medium">MEDIUM</span></td><td><code>B608</code></td><td><code>src/core/db/settings_db.py:295</code></td><td>Possible SQL injection vector through string-based query construction.<pre>294         row = db.execute(
-295             f&quot;SELECT 1 FROM connections WHERE id = ? AND {conditions} AND extra IS ?&quot;,
-296             [row_id] + [values[column] for column in compared] + [extra],
-</pre></td></tr><tr><td><span class="severity low">LOW</span></td><td><code>B404</code></td><td><code>src/core/dependencies/check_dependencies.py:7</code></td><td>Consider possible security implications associated with the subprocess module.<pre>6 from qgis.PyQt.QtWidgets import QMessageBox
-7 import subprocess
-8 
-</pre></td></tr><tr><td><span class="severity low">LOW</span></td><td><code>B603</code></td><td><code>src/core/dependencies/check_dependencies.py:204</code></td><td>subprocess call - check for execution of untrusted input.<pre>203                 PLUGIN_LOGGER.info(f&quot;Installing {pip_requirement} using {pip_path}...&quot;)
-204                 result = subprocess.run(
-205                     [pip_path, &quot;install&quot;, pip_requirement],
-206                     capture_output=True,
-207                     text=True,
-208                     check=True,
-209                 )
-210                 PLUGIN_LOGGER.info(f&quot;Successfully installed {pip_requirement}&quot;)
-</pre></td></tr><tr><td><span class="severity low">LOW</span></td><td><code>B101</code></td><td><code>src/core/sshtunnel/sshtunnel.py:112</code></td><td>Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.<pre>111 def check_host(host):
-112     assert isinstance(host, string_types), &quot;IP is not a string ({0})&quot;.format(
-113         type(host).__name__
-114     )
-115 
-</pre></td></tr><tr><td><span class="severity low">LOW</span></td><td><code>B101</code></td><td><code>src/core/sshtunnel/sshtunnel.py:118</code></td><td>Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.<pre>117 def check_port(port):
-118     assert isinstance(port, int), &quot;PORT is not a number&quot;
-119     assert port &gt;= 0, &quot;PORT &lt; 0 ({0})&quot;.format(port)
-</pre></td></tr><tr><td><span class="severity low">LOW</span></td><td><code>B101</code></td><td><code>src/core/sshtunnel/sshtunnel.py:119</code></td><td>Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.<pre>118     assert isinstance(port, int), &quot;PORT is not a number&quot;
-119     assert port &gt;= 0, &quot;PORT &lt; 0 ({0})&quot;.format(port)
-120 
-</pre></td></tr><tr><td><span class="severity low">LOW</span></td><td><code>B101</code></td><td><code>src/core/sshtunnel/sshtunnel.py:186</code></td><td>Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.<pre>185     &quot;&quot;&quot;
-186     assert all(isinstance(x, (tuple, string_types)) for x in address_list)
-187     if is_remote and any(isinstance(x, string_types) for x in address_list):
-</pre></td></tr><tr><td><span class="severity medium">MEDIUM</span></td><td><code>B104</code></td><td><code>src/core/sshtunnel/sshtunnel.py:850</code></td><td>Possible binding to all interfaces.<pre>849                 (&quot;127.0.0.1&quot;, _srv.local_port)
-850                 if _srv.local_host == &quot;0.0.0.0&quot;
-851                 else _srv.local_address
-</pre></td></tr><tr><td><span class="severity medium">MEDIUM</span></td><td><code>B104</code></td><td><code>src/core/sshtunnel/sshtunnel.py:1186</code></td><td>Possible binding to all interfaces.<pre>1185             )
-1186         local_binds.extend([(&quot;0.0.0.0&quot;, 0) for x in range(count)])
-1187         return local_binds
-</pre></td></tr><tr><td><span class="severity low">LOW</span></td><td><code>B105</code></td><td><code>src/core/utils/ssh_config.py:316</code></td><td>Possible hardcoded password: &#x27;None&#x27;<pre>315         &quot;username&quot;: username,
-316         &quot;password&quot;: None,  # Bandit Security Analysis flags empty str as possible hardcoded password
-317         &quot;id_file&quot;: id_file,
-318         &quot;pkey_password&quot;: None,  # Bandit Security Analysis flags empty str as possible hardcoded password
-319         &quot;ssh_proxy&quot;: &quot;&quot;,
-320         &quot;ssh_proxy_enabled&quot;: False,
-321     }
-322     return parameters, warnings
-323 
-324 
-325 def load_from_ssh_config(config_path=None, used_local_ports=()):
-326     &quot;&quot;&quot;
-327     Returns (list of (parameters, warnings)) for every concrete Host in the config.
-328     Returns an empty list if the config file does not exist.
-329     Raises OSError if it exists but cannot be read.
-330     &quot;&quot;&quot;
-</pre></td></tr><tr><td><span class="severity low">LOW</span></td><td><code>B105</code></td><td><code>src/core/utils/ssh_config.py:318</code></td><td>Possible hardcoded password: &#x27;None&#x27;<pre>317         &quot;id_file&quot;: id_file,
-318         &quot;pkey_password&quot;: None,  # Bandit Security Analysis flags empty str as possible hardcoded password
-319         &quot;ssh_proxy&quot;: &quot;&quot;,
-320         &quot;ssh_proxy_enabled&quot;: False,
-321     }
-322     return parameters, warnings
-323 
-324 
-325 def load_from_ssh_config(config_path=None, used_local_ports=()):
-326     &quot;&quot;&quot;
-327     Returns (list of (parameters, warnings)) for every concrete Host in the config.
-328     Returns an empty list if the config file does not exist.
-329     Raises OSError if it exists but cannot be read.
-330     &quot;&quot;&quot;
-331     config_path = config_path or default_ssh_config_path()
-332     if not os.path.isfile(config_path):
 </pre></td></tr></tbody>
         </table>
     </div>

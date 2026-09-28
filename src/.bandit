@@ -1,3 +1,13 @@
 # https://plugins.qgis.org/docs/security-scanning/config-files
+
 # https://plugins.qgis.org/docs/security-scanning/rules
-# [bandit]
+
+[bandit]
+# Ignore:
+#   - B105/hardcoded passwords, there are none
+#   - B608/SQL injection: this is not a web application
+#   - B603,B404/subprocess call: input is a set of dependencies we manage
+#   -
+skips = B105,B608,B603,B404
+# Do not scan vendored library sshtunnel
+exclude = core/sshtunnel
