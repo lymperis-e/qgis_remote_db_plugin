@@ -92,10 +92,16 @@ Suggestions & pull requests are more than welcome.
 
 ### Security audit
 
+QGIS Plugins Repo now automatically performs a [security audit](https://plugins.qgis.org/docs/security-scanning/tools) on all submitted plugins using [Bandit](https://bandit.readthedocs.io/). To ensure compliance and avoid rejections, this repo uses:
+
+- A `.bandit` configuration file specifying which security checks to skip and which directories to exclude. This is also respected by the QGIS plugins repo.
+- A `scripts/audit.py` script to run the Bandit security scan locally.
+- A step in the publishing process via the [CI/CD pipeline](./.github/workflows/publish.yml) configured to automatically run the security audit.
+
 Docker is required to run the Bandit security scan. From the repository root, run:
 
 ```bash
-python scripts/run_security_audit.py
+python scripts/audit.py
 ```
 
 The scan writes its JSON report to `audit/bandit-report.json`. Bandit findings produce a nonzero exit code.
@@ -103,7 +109,7 @@ The scan writes its JSON report to `audit/bandit-report.json`. Bandit findings p
 To render the existing JSON report as HTML without rerunning the scan, run:
 
 ```bash
-python scripts/run_security_audit.py --beautify
+python scripts/audit.py --beautify
 ```
 
 The HTML report is saved to `audit/bandit-report.html`.
