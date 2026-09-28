@@ -134,8 +134,11 @@ class LegacyConnectionsFile:
         encodings = ["utf-8-sig"]
         try:
             encodings.append(locale.getpreferredencoding(False))
-        except Exception:
-            pass
+        except (locale.Error, ValueError) as e:
+            PLUGIN_LOGGER.debug(
+                "Could not determine the preferred encoding (%s); using fallbacks.",
+                e,
+            )
         encodings.append("latin-1")  # never fails, last resort
         for encoding in encodings:
             try:
