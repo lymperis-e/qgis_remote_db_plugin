@@ -1,6 +1,7 @@
 # QGIS Plugin: Remote DB
 
 [![CodeQL](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/codeql.yml) [![Code Style](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml/badge.svg)](https://github.com/lymperis-e/qgis_remote_db_plugin/actions/workflows/code-style.yml)
+[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
 ![Plugin logo](img/logo_50.png)
 
@@ -88,6 +89,24 @@ This is a new plugin. Although it has been tested in several machines, it is sti
 Suggestions & pull requests are more than welcome.
 
 ## Development
+
+### Security audit
+
+Docker is required to run the Bandit security scan. From the repository root, run:
+
+```bash
+python scripts/run_security_audit.py
+```
+
+The scan writes its JSON report to `audit/bandit-report.json`. Bandit findings produce a nonzero exit code.
+
+To render the existing JSON report as HTML without rerunning the scan, run:
+
+```bash
+python scripts/run_security_audit.py --beautify
+```
+
+The HTML report is saved to `audit/bandit-report.html`.
 
 ## Tests
 
